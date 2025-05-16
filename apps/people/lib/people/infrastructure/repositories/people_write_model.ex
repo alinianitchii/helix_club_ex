@@ -37,7 +37,7 @@ defmodule People.Infrastructure.Repository.PersonWriteRepo do
         case Repo.get(PersonWriteModel, person.id) do
           nil ->
             %PersonWriteModel{id: person.id}
-            |> PersonWriteModel.changeset(%{state: person_json, version: 1})
+            |> PersonWriteModel.changeset(%{state: person_json})
 
           existing ->
             existing

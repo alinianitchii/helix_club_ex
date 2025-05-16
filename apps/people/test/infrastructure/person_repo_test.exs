@@ -40,7 +40,7 @@ defmodule People.Infrastructure.Repository.PersonWriteRepoTest do
       assert db_person.state["full_name"]["surname"] == "Doe"
       assert db_person.state["email"]["value"] == "john.doe@example.com"
 
-      assert db_person.version == 1
+      assert db_person.version == 2
     end
   end
 
