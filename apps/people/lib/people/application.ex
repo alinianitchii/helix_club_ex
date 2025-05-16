@@ -11,6 +11,7 @@ defmodule People.Application do
       People.Infrastructure.Db.Repo,
       {Phoenix.PubSub, [name: People.PubSub, pool_size: 1]},
       People.EventSubscriber,
+      People.OutboxPublisher,
       {Bandit, plug: People.Http.Router, scheme: :http, port: 4000}
     ]
 

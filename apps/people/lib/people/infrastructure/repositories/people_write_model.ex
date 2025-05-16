@@ -55,7 +55,7 @@ defmodule People.Infrastructure.Repository.PersonWriteRepo do
                 event_type: event_type_for(event),
                 payload: serialize_event(event),
                 metadata: %{},
-                created_at: DateTime.utc_now()
+                created_at: DateTime.utc_now() |> DateTime.truncate(:second)
               }
             end)
 

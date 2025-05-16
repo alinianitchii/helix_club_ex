@@ -9,11 +9,11 @@ defmodule People.Repo.Migrations.CreateOutboxTable do
       add :event_type, :string, null: false
       add :payload, :jsonb, null: false
       add :metadata, :jsonb
-      add :processed_at, :utc_datetime
+      add :published_at, :utc_datetime
       add :created_at, :utc_datetime, null: false
     end
 
     # Optional index for processing unhandled events efficiently
-    create index(:outbox, [:processed_at])
+    create index(:outbox, [:published_at])
   end
 end

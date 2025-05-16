@@ -11,7 +11,7 @@ defmodule People.Infrastructure.Db.Schema.OutboxSchema do
     field(:payload, :map)
     # JSON type
     field(:metadata, :map)
-    field(:processed_at, :utc_datetime)
+    field(:published_at, :utc_datetime)
     field(:created_at, :utc_datetime)
   end
 
