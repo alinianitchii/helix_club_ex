@@ -4,8 +4,8 @@ defmodule PersonAggregateTest do
 
   alias People.Domain.AddressValueObject
   alias People.Domain.PersonAggregate
-  alias People.Domain.PersonAggregate.Commands
-  alias People.Domain.PersonAggregate.Events
+  alias People.Domain.Commands
+  alias People.Domain.Events
 
   describe "create" do
     test "Create a valid person" do
