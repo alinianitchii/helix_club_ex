@@ -1,5 +1,5 @@
 defmodule People.Infrastructure.Repository.PersonWriteRepoTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   use People.DataCase
 
   alias People.Domain.PersonAggregate
