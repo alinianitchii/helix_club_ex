@@ -5,10 +5,12 @@ defmodule People.Http.PersonController do
   alias People.Application.Query.GetPersonById
 
   def create(conn, params) do
-    IO.inspect(params)
-    case CreatePerson.execute(params) do
+    id = UUID.uuid4()
+    params_with_id = params |> Map.put("id", id)
+
+    case CreatePerson.execute(params_with_id) do
       {:ok, _person_id} ->
-        send_resp(conn, 201, Jason.encode!(%{ok: "ok"}))
+        send_resp(conn, 201, Jason.encode!(%{id: id}))
 
       {:error, reason} ->
         send_resp(conn, 400, Jason.encode!(%{error: to_string(reason)}))

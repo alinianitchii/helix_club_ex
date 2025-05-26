@@ -11,32 +11,32 @@ defmodule PersonAggregateTest do
     test "Create a valid person" do
       command = %Commands.Create{
         id: "person_123",
-        name: "John",
-        surname: "Doe",
-        email: "john.doe@example.com",
+        name: "Ciccio",
+        surname: "Pasticcio",
+        email: "ciccio.pasticcio@example.com",
         date_of_birth: ~D[1990-01-01]
       }
 
       assert {:ok, person, event} = PersonAggregate.evolve(nil, command)
 
       assert person.id == "person_123"
-      assert person.full_name.name == "John"
-      assert person.full_name.surname == "Doe"
-      assert person.email.value == "john.doe@example.com"
+      assert person.full_name.name == "Ciccio"
+      assert person.full_name.surname == "Pasticcio"
+      assert person.email.value == "ciccio.pasticcio@example.com"
       assert person.date_of_birth.value == ~D[1990-01-01]
 
       assert %Events.PersonCreated{} = event
       assert event.id == "person_123"
-      assert event.name == "John"
-      assert event.surname == "Doe"
-      assert event.email == "john.doe@example.com"
+      assert event.name == "Ciccio"
+      assert event.surname == "Pasticcio"
+      assert event.email == "ciccio.pasticcio@example.com"
     end
 
     test "creation fails with invalid email" do
       command = %Commands.Create{
         id: "person_123",
-        name: "John",
-        surname: "Doe",
+        name: "Ciccio",
+        surname: "Pasticcio",
         email: "invalid-email",
         date_of_birth: ~D[1990-01-01]
       }

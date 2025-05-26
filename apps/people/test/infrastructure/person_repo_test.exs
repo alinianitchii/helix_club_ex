@@ -11,15 +11,13 @@ defmodule People.Infrastructure.Repository.PersonWriteRepoTest do
   alias People.Infrastructure.Db.Repo
 
   setup do
-    # Create a sample person aggregate for testing
     person = %PersonAggregate{
       id: "test_person_#{:rand.uniform(1_000_000)}",
-      full_name: %FullNameValueObject{name: "John", surname: "Doe"},
-      email: %EmailValueObject{value: "john.doe@example.com"},
+      full_name: %FullNameValueObject{name: "Ciccio", surname: "Pasticcio"},
+      email: %EmailValueObject{value: "ciccio.pasticcio@example.com"},
       date_of_birth: %BirthDateValueObject{value: ~D[1990-01-01]}
     }
 
-    # Subscribe the current test process to the pubsub topic
     Phoenix.PubSub.subscribe(People.PubSub, "person_domain_events")
 
     {:ok, %{person: person}}
@@ -36,9 +34,9 @@ defmodule People.Infrastructure.Repository.PersonWriteRepoTest do
 
       assert is_map(db_person.state)
       assert db_person.state["id"] == person.id
-      assert db_person.state["full_name"]["name"] == "John"
-      assert db_person.state["full_name"]["surname"] == "Doe"
-      assert db_person.state["email"]["value"] == "john.doe@example.com"
+      assert db_person.state["full_name"]["name"] == "Ciccio"
+      assert db_person.state["full_name"]["surname"] == "Pasticcio"
+      assert db_person.state["email"]["value"] == "ciccio.pasticcio@example.com"
 
       assert db_person.version == 2
     end
@@ -76,9 +74,9 @@ defmodule People.Infrastructure.Repository.PersonWriteRepoTest do
       {:ok, retrieved_person} = PersonWriteRepo.get(person.id)
 
       assert retrieved_person.id == person.id
-      assert retrieved_person.full_name.name == "John"
-      assert retrieved_person.full_name.surname == "Doe"
-      assert retrieved_person.email.value == "john.doe@example.com"
+      assert retrieved_person.full_name.name == "Ciccio"
+      assert retrieved_person.full_name.surname == "Pasticcio"
+      assert retrieved_person.email.value == "ciccio.pasticcio@example.com"
       assert retrieved_person.date_of_birth.value == ~D[1990-01-01]
     end
 
