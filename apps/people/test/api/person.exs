@@ -9,6 +9,13 @@ defmodule People.API.PersonTest do
 
   @opts Router.init([])
 
+  @person_fixture %{
+    "name" => "Ciccio",
+    "surname" => "Pasticcio",
+    "email" => "ciccio.pasticcio@example.com",
+    "date_of_birth" => "1990-01-01"
+  }
+
   setup do
     {:ok, server_pid} = start_supervised({Bandit, plug: People.Http.Router, port: 4001})
     Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), server_pid)
@@ -20,15 +27,8 @@ defmodule People.API.PersonTest do
 
   describe "POST /people" do
     test "creates a new person" do
-      person_data = %{
-        "name" => "Ciccio",
-        "surname" => "Pasticcio",
-        "email" => "ciccio.pasticcio@example.com",
-        "date_of_birth" => "1990-01-01"
-      }
-
       conn =
-        conn(:post, "/people", Jason.encode!(person_data))
+        conn(:post, "/people", Jason.encode!(@person_fixture))
         |> put_req_header("content-type", "application/json")
         |> Router.call(@opts)
 
@@ -39,14 +39,7 @@ defmodule People.API.PersonTest do
 
   describe "GET /people/:id" do
     test "retrieves a person by id" do
-      person_data = %{
-        "name" => "Ciccio",
-        "surname" => "Pasticcio",
-        "email" => "ciccio.pasticcio@example.com",
-        "date_of_birth" => "1992-02-02"
-      }
-
-      conn = conn(:post, "/people", Jason.encode!(person_data))
+      conn = conn(:post, "/people", Jason.encode!(@person_fixture))
       |> put_req_header("content-type", "application/json")
       |> Router.call(@opts)
 
@@ -61,10 +54,10 @@ defmodule People.API.PersonTest do
       assert conn.status == 200
       retrieved_person = Jason.decode!(conn.resp_body)
       assert retrieved_person["id"] == id
-      assert retrieved_person["name"] == person_data["name"]
-      assert retrieved_person["surname"] == person_data["surname"]
-      assert retrieved_person["email"] == person_data["email"]
-      assert retrieved_person["date_of_birth"] == person_data["date_of_birth"]
+      assert retrieved_person["name"] == @person_fixture["name"]
+      assert retrieved_person["surname"] == @person_fixture["surname"]
+      assert retrieved_person["email"] == @person_fixture["email"]
+      assert retrieved_person["date_of_birth"] == @person_fixture["date_of_birth"]
     end
 
     test "returns 404 for non-existent person" do
