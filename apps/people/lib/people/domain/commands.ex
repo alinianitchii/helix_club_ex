@@ -1,5 +1,4 @@
 defmodule People.Domain.Commands do
-
   defmodule Create do
     @enforce_keys [:id]
     defstruct [:id, :name, :surname, :email, :date_of_birth]

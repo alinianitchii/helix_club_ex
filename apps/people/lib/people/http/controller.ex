@@ -1,7 +1,7 @@
 defmodule People.Http.PersonController do
   import Plug.Conn
 
-  alias People.Application.Command.CreatePerson
+  alias People.Application.Command.{CreatePerson, AddAddress}
   alias People.Application.Query.GetPersonById
 
   def create(conn, params) do
@@ -9,8 +9,20 @@ defmodule People.Http.PersonController do
     params_with_id = params |> Map.put("id", id)
 
     case CreatePerson.execute(params_with_id) do
-      {:ok, _person_id} ->
+      {:ok, _} ->
         send_resp(conn, 201, Jason.encode!(%{id: id}))
+
+      {:error, reason} ->
+        send_resp(conn, 400, Jason.encode!(%{error: to_string(reason)}))
+    end
+  end
+
+  def add_address(conn, id, params) do
+    params_with_id = params |> Map.put("id", id)
+
+    case AddAddress.execute(params_with_id) do
+      {:ok} ->
+        send_resp(conn, 201, "")
 
       {:error, reason} ->
         send_resp(conn, 400, Jason.encode!(%{error: to_string(reason)}))

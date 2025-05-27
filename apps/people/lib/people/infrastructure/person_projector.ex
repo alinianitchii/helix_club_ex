@@ -45,7 +45,6 @@ defmodule People.Projectors.PersonProjector do
   def handle(%PersonAddressChanged{} = event) do
     case PersonReadRepo.get_person(event.id) do
       {:ok, existing_person} ->
-        # Update the address field as a nested map
         updated_person =
           Map.put(existing_person, :address, %{
             street: event.street,
@@ -56,7 +55,7 @@ defmodule People.Projectors.PersonProjector do
             country: event.country
           })
 
-          PersonReadRepo.upsert_person(updated_person)
+        PersonReadRepo.upsert_person(updated_person)
 
       error ->
         error

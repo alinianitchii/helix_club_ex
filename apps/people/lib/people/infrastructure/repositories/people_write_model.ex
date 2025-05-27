@@ -41,9 +41,8 @@ defmodule People.Infrastructure.Repository.PersonWriteRepo do
 
           existing ->
             existing
-            |> PersonWriteModel.changeset(%{state: person_json, version: existing.version + 1})
+            |> PersonWriteModel.changeset(%{state: person_json})
         end
-
 
       case Repo.insert_or_update(person_changeset) do
         {:ok, _saved_person} ->
@@ -83,6 +82,7 @@ defmodule People.Infrastructure.Repository.PersonWriteRepo do
         error
     end
   end
+
   def save(person), do: save(person, [])
 
   defp serialize_aggregate(person) do

@@ -1,6 +1,4 @@
 defmodule People.Domain.PersonAggregate do
-
-
   alias People.Domain.PersonAggregate.Events.PersonCreated
   alias People.Domain.PersonAggregate
   alias People.Domain.FullNameValueObject
@@ -12,7 +10,6 @@ defmodule People.Domain.PersonAggregate do
   alias People.Domain.Commands.AddAddress
   alias People.Domain.Events.PersonCreated
   alias People.Domain.Events.PersonAddressChanged
-
 
   defstruct [
     :id,
@@ -40,28 +37,28 @@ defmodule People.Domain.PersonAggregate do
   end
 
   def decide(%PersonAggregate{} = person, %AddAddress{} = cmd) do
-   with {:ok, address} <-
-          AddressValueObject.new(
-            cmd.street,
-            cmd.number,
-            cmd.city,
-            cmd.postal_code,
-            cmd.state_or_province,
-            cmd.country
-          ) do
-     {:ok,
-      %PersonAddressChanged{
-        id: person.id,
-        street: address.street,
-        number: address.number,
-        city: address.city,
-        postal_code: address.postal_code,
-        state_or_province: address.state_or_province,
-        country: address.country
-      }}
-   else
-     {:error, %DomainError{} = error} -> {:error, error}
-   end
+    with {:ok, address} <-
+           AddressValueObject.new(
+             cmd.street,
+             cmd.number,
+             cmd.city,
+             cmd.postal_code,
+             cmd.state_or_province,
+             cmd.country
+           ) do
+      {:ok,
+       %PersonAddressChanged{
+         id: person.id,
+         street: address.street,
+         number: address.number,
+         city: address.city,
+         postal_code: address.postal_code,
+         state_or_province: address.state_or_province,
+         country: address.country
+       }}
+    else
+      {:error, %DomainError{} = error} -> {:error, error}
+    end
   end
 
   def apply_event(nil, %PersonCreated{} = event) do
@@ -74,14 +71,14 @@ defmodule People.Domain.PersonAggregate do
     } = event
 
     %PersonAggregate{
-         id: id,
-        full_name: %FullNameValueObject{name: name, surname: surname},
-        email: %EmailValueObject{value: email},
-        date_of_birth: %BirthDateValueObject{value: date_of_birth}
+      id: id,
+      full_name: %FullNameValueObject{name: name, surname: surname},
+      email: %EmailValueObject{value: email},
+      date_of_birth: %BirthDateValueObject{value: date_of_birth}
     }
   end
 
-   def apply_event(%PersonAggregate{} = person, %PersonAddressChanged{} = evt) do
+  def apply_event(%PersonAggregate{} = person, %PersonAddressChanged{} = evt) do
     %PersonAggregate{
       person
       | address: %AddressValueObject{
@@ -93,13 +90,12 @@ defmodule People.Domain.PersonAggregate do
           country: evt.country
         }
     }
-   end
+  end
 
-
-   def evolve(state, command) do
+  def evolve(state, command) do
     with {:ok, event} <- decide(state, command) do
       new_state = apply_event(state, event)
       {:ok, new_state, event}
     end
-   end
+  end
 end

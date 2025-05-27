@@ -10,7 +10,6 @@ defmodule People.Application.Command.CreatePerson do
         "email" => email,
         "date_of_birth" => dob
       }) do
-
     {:ok, parsed_dob} = Date.from_iso8601(dob)
 
     command = %Create{

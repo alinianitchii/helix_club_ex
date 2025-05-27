@@ -15,6 +15,10 @@ defmodule People.Http.Router do
     People.Http.PersonController.create(conn, conn.body_params)
   end
 
+  post "/people/:id/address" do
+    People.Http.PersonController.add_address(conn, id, conn.body_params)
+  end
+
   get "/people/:id" do
     People.Http.PersonController.get(conn, id)
   end

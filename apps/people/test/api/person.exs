@@ -17,12 +17,30 @@ defmodule People.API.PersonTest do
   }
 
   setup do
-    {:ok, server_pid} = start_supervised({Bandit, plug: People.Http.Router, port: 4001})
-    Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), server_pid)
+    # Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), server_pid)
+
+    Ecto.Adapters.SQL.Sandbox.mode(Repo, {:shared, self()})
+
+    {:ok, _server_pid} = start_supervised({Bandit, plug: People.Http.Router, port: 4001})
 
     Process.register(self(), :test_process)
 
     :ok
+  end
+
+  defp eventually(fun, attempts \\ 10)
+
+  defp eventually(_fun, 0), do: flunk("Expected condition was not met in time")
+
+  defp eventually(fun, attempts) do
+    case fun.() do
+      true ->
+        :ok
+
+      false ->
+        Process.sleep(100)
+        eventually(fun, attempts - 1)
+    end
   end
 
   describe "POST /people" do
@@ -39,9 +57,10 @@ defmodule People.API.PersonTest do
 
   describe "GET /people/:id" do
     test "retrieves a person by id" do
-      conn = conn(:post, "/people", Jason.encode!(@person_fixture))
-      |> put_req_header("content-type", "application/json")
-      |> Router.call(@opts)
+      conn =
+        conn(:post, "/people", Jason.encode!(@person_fixture))
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
 
       %{"id" => id} = Jason.decode!(conn.resp_body)
 
@@ -62,11 +81,65 @@ defmodule People.API.PersonTest do
 
     test "returns 404 for non-existent person" do
       non_existent_id = UUID.uuid4()
+
       conn =
         conn(:get, "/people/#{non_existent_id}")
         |> Router.call(@opts)
 
       assert conn.status == 404
+    end
+  end
+
+  describe "POST /people/:id/address" do
+    test "adds an address to the person" do
+      # create person
+      conn =
+        conn(:post, "/people", Jason.encode!(@person_fixture))
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      %{"id" => id} = Jason.decode!(conn.resp_body)
+
+      # Wait for read model to be updated after person creation
+      assert_receive {:read_model_updated, ^id}, 5000
+
+      # add address
+      conn =
+        conn(
+          :post,
+          "/people/#{id}/address",
+          Jason.encode!(%{
+            "id" => id,
+            "street" => "Via Giulio Natta",
+            "number" => "59",
+            "city" => "Arcore",
+            "postal_code" => "20862",
+            "state_or_province" => "MB",
+            "country" => "Italia"
+          })
+        )
+        |> put_req_header("content-type", "application/json")
+        |> Router.call(@opts)
+
+      assert conn.status == 201
+
+      expected_address = %{
+        "street" => "Via Giulio Natta",
+        "number" => "59",
+        "city" => "Arcore",
+        "postal_code" => "20862",
+        "state_or_province" => "MB",
+        "country" => "Italia"
+      }
+
+      eventually(fn ->
+        conn =
+          conn(:get, "/people/#{id}")
+          |> Router.call(@opts)
+
+        retrieved_person = Jason.decode!(conn.resp_body)
+        retrieved_person["address"] == expected_address
+      end)
     end
   end
 end

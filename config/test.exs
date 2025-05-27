@@ -6,9 +6,8 @@ config :people, People.Infrastructure.Db.Repo,
   database: "people_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 10,
+  pool_size: 20,
   ownership_timeout: 10_000
-
 
 # Configure the logger
 config :logger, level: :debug
