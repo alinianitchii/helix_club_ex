@@ -44,21 +44,20 @@ defmodule People.Projectors.PersonProjector do
 
   def handle(%PersonAddressChanged{} = event) do
     case PersonReadRepo.get_person(event.id) do
-      {:ok, existing_person} ->
-        updated_person =
-          Map.put(existing_person, :address, %{
-            street: event.street,
-            number: event.number,
-            city: event.city,
-            postal_code: event.postal_code,
-            state_or_province: event.state_or_province,
-            country: event.country
-          })
+      nil ->
+        {:error, :not_found}
 
-        PersonReadRepo.upsert_person(updated_person)
+      _ ->
+        address = %{
+          street: event.street,
+          number: event.number,
+          city: event.city,
+          postal_code: event.postal_code,
+          state_or_province: event.state_or_province,
+          country: event.country
+        }
 
-      error ->
-        error
+        PersonReadRepo.upsert_person(%{id: event.id, address: address})
     end
   end
 end

@@ -1,5 +1,6 @@
 defmodule People.API.PersonTest do
   use ExUnit.Case, async: false
+
   use People.DataCase
   import Plug.Test
   import Plug.Conn
@@ -17,30 +18,11 @@ defmodule People.API.PersonTest do
   }
 
   setup do
-    # Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), server_pid)
-
     Ecto.Adapters.SQL.Sandbox.mode(Repo, {:shared, self()})
 
-    {:ok, _server_pid} = start_supervised({Bandit, plug: People.Http.Router, port: 4001})
-
-    Process.register(self(), :test_process)
+    {:ok, _} = start_supervised({Bandit, plug: People.Http.Router, port: 4001})
 
     :ok
-  end
-
-  defp eventually(fun, attempts \\ 10)
-
-  defp eventually(_fun, 0), do: flunk("Expected condition was not met in time")
-
-  defp eventually(fun, attempts) do
-    case fun.() do
-      true ->
-        :ok
-
-      false ->
-        Process.sleep(100)
-        eventually(fun, attempts - 1)
-    end
   end
 
   describe "POST /people" do
@@ -64,7 +46,8 @@ defmodule People.API.PersonTest do
 
       %{"id" => id} = Jason.decode!(conn.resp_body)
 
-      assert_receive {:read_model_updated, ^id}, 5000
+      # TODO: its a really bad solution but it's ok for the moment
+      Process.sleep(100)
 
       conn =
         conn(:get, "/people/#{id}")
@@ -92,7 +75,6 @@ defmodule People.API.PersonTest do
 
   describe "POST /people/:id/address" do
     test "adds an address to the person" do
-      # create person
       conn =
         conn(:post, "/people", Jason.encode!(@person_fixture))
         |> put_req_header("content-type", "application/json")
@@ -100,10 +82,6 @@ defmodule People.API.PersonTest do
 
       %{"id" => id} = Jason.decode!(conn.resp_body)
 
-      # Wait for read model to be updated after person creation
-      assert_receive {:read_model_updated, ^id}, 5000
-
-      # add address
       conn =
         conn(
           :post,
@@ -132,14 +110,15 @@ defmodule People.API.PersonTest do
         "country" => "Italia"
       }
 
-      eventually(fn ->
-        conn =
-          conn(:get, "/people/#{id}")
-          |> Router.call(@opts)
+      # TODO: its a really bad solution but it's ok for the moment
+      Process.sleep(100)
 
-        retrieved_person = Jason.decode!(conn.resp_body)
-        retrieved_person["address"] == expected_address
-      end)
+      conn =
+        conn(:get, "/people/#{id}")
+        |> Router.call(@opts)
+
+      assert retrieved_person = Jason.decode!(conn.resp_body)
+      assert retrieved_person["address"] == expected_address
     end
   end
 end

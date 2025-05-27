@@ -11,11 +11,6 @@ defmodule People.Infrastructure.Repository.PersonReadRepo do
       |> PersonReadModel.changeset(attrs)
 
     Repo.insert_or_update(changeset)
-
-    # Notify test processes if we're in test environment
-    if Mix.env() == :test do
-      send(:test_process, {:read_model_updated, attrs.id})
-    end
   end
 
   def get_person(id) do

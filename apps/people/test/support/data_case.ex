@@ -27,7 +27,11 @@ defmodule People.DataCase do
         shared: not tags[:async]
       )
 
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+    on_exit(fn ->
+      Process.sleep(100)
+      Ecto.Adapters.SQL.Sandbox.stop_owner(pid)
+    end)
+
     :ok
   end
 end
