@@ -1,13 +1,44 @@
 defmodule Memberships.Domain.DurationValueObject do
   defstruct [:type, :start_date, :end_date]
 
-  # TODO test and write the correct implementation
+  @valid_types [:annual, :quarterly, :monthly]
+  @type_months %{
+    annual: 12,
+    quarterly: 4,
+    monthly: 1
+  }
+
+  def new(_type, start_date) when not is_struct(start_date, Date),
+    do: {:error, DomainError.new(:invalid_date, "Invalid start date")}
+
+  def new(type, _start_date) when type not in @valid_types,
+    do: {:error, DomainError.new(:invalid_type, "Invalid duration type")}
+
   def new(type, start_date) do
+    end_date = add_months_to_date(start_date, Map.fetch!(@type_months, type))
+
     {:ok,
      %__MODULE__{
        type: type,
        start_date: start_date,
-       end_date: ~D[2026-05-31]
+       end_date: end_date
      }}
+  end
+
+  defp add_months_to_date(%Date{year: year, month: month, day: day}, months_to_add) do
+    total_months = year * 12 + month - 1 + months_to_add
+
+    new_year = div(total_months, 12)
+    new_month = rem(total_months, 12) + 1
+
+    case Date.new(new_year, new_month, day) do
+      {:ok, date} ->
+        Date.add(date, -1)
+
+      {:error, :invalid_date} ->
+        last_day = Date.days_in_month(%Date{year: new_year, month: new_month, day: 1})
+        {:ok, fallback_date} = Date.new(new_year, new_month, last_day)
+        fallback_date
+    end
   end
 end
