@@ -1,4 +1,4 @@
-defmodule People.API.PersonTest do
+defmodule People.Http.PersonTest do
   use ExUnit.Case, async: false
 
   use People.DataCase
