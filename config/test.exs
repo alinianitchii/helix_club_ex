@@ -15,4 +15,18 @@ config :logger, level: :debug
 # Configure the sandbox
 config :people, :sql_sandbox, true
 
-config :people, http_port: 4000
+# config :people, http_port: 4000
+
+config :memberships, Memberships.Infrastructure.Db.Repo,
+  username: "postgres",
+  password: "postgres",
+  database: "memberships_test",
+  hostname: "localhost",
+  pool: Ecto.Adapters.SQL.Sandbox,
+  pool_size: 20,
+  ownership_timeout: 10_000
+
+# Configure the sandbox
+config :memberships, :sql_sandbox, true
+
+# config :people, http_port: 4000

@@ -1,9 +1,9 @@
-defmodule People.MixProject do
+defmodule Memberships.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :people,
+      app: :memberships,
       version: "0.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -11,6 +11,7 @@ defmodule People.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
+      deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       aliases: aliases()
@@ -21,11 +22,10 @@ defmodule People.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {People.Application, []}
+      mod: {Memberships.Application, []}
     ]
   end
 
-  # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_env), do: ["lib"]
 
