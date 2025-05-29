@@ -11,7 +11,6 @@ defmodule Memberships.MixProject do
       lockfile: "../../mix.lock",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
-      deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
       aliases: aliases()

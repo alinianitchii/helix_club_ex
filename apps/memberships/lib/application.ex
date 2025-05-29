@@ -6,10 +6,10 @@ defmodule Memberships.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Memberships.Infrastructure.Db.Repo
+      Memberships.Infrastructure.Db.Repo
+      # {Bandit, plug: Memberships.Http.Router, scheme: :http, port: 4001}
       # {Phoenix.PubSub, [name: People.PubSub, pool_size: 1]},
       # People.EventSubscriber,
-      # {Bandit, plug: People.Http.Router, scheme: :http, port: 4000}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
