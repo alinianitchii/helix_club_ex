@@ -15,9 +15,9 @@ defmodule Memberships.Http.Router do
     Memberships.Http.Controller.create(conn, conn.body_params)
   end
 
-  # get "/memberships/:id" do
-  #  Memberships.Http.PersonController.get(conn, id)
-  # end
+  get "/memberships/:id" do
+    Memberships.Http.Controller.get(conn, id)
+  end
 
   match _ do
     send_resp(conn, 404, "Not found")

@@ -12,8 +12,8 @@ defmodule Memberships.Http.MembershipsTest do
   @opts Router.init([])
 
   @membership_fixture %{
-    person_id: "person_123",
-    type: :annual,
+    person_id: UUID.uuid4(),
+    type: "annual",
     start_date: "2023-03-23"
   }
 
@@ -46,6 +46,23 @@ defmodule Memberships.Http.MembershipsTest do
         do_api_call(:post, "/memberships", @membership_fixture)
 
       assert resp.status == 201
+      assert Map.get(resp.decoded, "id") != nil
+    end
+  end
+
+  describe "GET /memberships/:id" do
+    test "retrieves a membership by id" do
+      {:ok, resp} =
+        do_api_call(:post, "/memberships", @membership_fixture)
+
+      %{"id" => id} = resp.decoded
+
+      Process.sleep(100)
+
+      {:ok, resp} =
+        do_api_call(:get, "/memberships/#{id}")
+
+      assert resp.status == 200
       assert Map.get(resp.decoded, "id") != nil
     end
   end

@@ -5,5 +5,3 @@ config :people, People.Infrastructure.Db.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "localhost"
-
-config :people, ecto_repos: [People.Infrastructure.Db.Repo]
