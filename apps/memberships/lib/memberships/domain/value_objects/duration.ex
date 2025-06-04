@@ -1,9 +1,9 @@
 defmodule Memberships.Domain.DurationValueObject do
   defstruct [:type, :start_date, :end_date]
 
-  @valid_types [:annual, :quarterly, :monthly]
+  @valid_types [:yearly, :quarterly, :monthly]
   @type_months %{
-    annual: 12,
+    yearly: 12,
     quarterly: 4,
     monthly: 1
   }

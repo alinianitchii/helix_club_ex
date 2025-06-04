@@ -6,7 +6,7 @@ defmodule Memberships.Http.MembershipsTest do
 
   @membership_fixture %{
     person_id: UUID.uuid4(),
-    type: "annual",
+    type: "yearly",
     start_date: "2023-03-23"
   }
 

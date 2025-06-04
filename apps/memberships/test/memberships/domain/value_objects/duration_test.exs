@@ -15,7 +15,7 @@ defmodule Memberships.Domain.DurationValueObjectTest do
     end
 
     test "nil start date" do
-      {:error, reason} = DurationValueObject.new(:annual, nil)
+      {:error, reason} = DurationValueObject.new(:yearly, nil)
 
       assert reason == %DomainError{
                code: :invalid_date,
@@ -25,7 +25,7 @@ defmodule Memberships.Domain.DurationValueObjectTest do
     end
 
     test "not a date start date" do
-      {:error, reason} = DurationValueObject.new(:annual, "21-03-2023")
+      {:error, reason} = DurationValueObject.new(:yearly, "21-03-2023")
 
       assert reason == %DomainError{
                code: :invalid_date,
@@ -35,7 +35,7 @@ defmodule Memberships.Domain.DurationValueObjectTest do
     end
 
     test "end date evaluation with annual type" do
-      {:ok, duration_value_object} = DurationValueObject.new(:annual, ~D[2024-01-01])
+      {:ok, duration_value_object} = DurationValueObject.new(:yearly, ~D[2024-01-01])
 
       assert duration_value_object.end_date == ~D[2024-12-31]
     end

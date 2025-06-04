@@ -11,7 +11,7 @@ defmodule Memberships.Domain.MembershipAggregateTest do
       command = %Commands.Create{
         id: "membership_123",
         person_id: "person_123",
-        type: :annual,
+        type: :yearly,
         start_date: ~D[2025-06-01]
       }
 
