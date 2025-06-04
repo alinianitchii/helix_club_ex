@@ -1,5 +1,9 @@
 defmodule Memberships.EventBus do
   def publish(event) do
-    Phoenix.PubSub.broadcast(Memberships.PubSub, "membership_domain_events", event)
+    PubSub.publish({"membership_domain_events", event})
+  end
+
+  def subscribe(topic) do
+    PubSub.subscribe(topic)
   end
 end
