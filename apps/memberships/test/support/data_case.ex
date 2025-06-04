@@ -14,7 +14,6 @@ defmodule Memberships.DataCase do
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Memberships.Infrastructure.Db.Repo)
-    Ecto.Adapters.SQL.Sandbox.mode(Memberships.Infrastructure.Db.Repo, :manual)
   end
 
   setup tags do

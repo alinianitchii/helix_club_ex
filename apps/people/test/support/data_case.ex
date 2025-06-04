@@ -18,7 +18,6 @@ defmodule People.DataCase do
 
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(People.Infrastructure.Db.Repo)
-    Ecto.Adapters.SQL.Sandbox.mode(People.Infrastructure.Db.Repo, :manual)
   end
 
   setup tags do

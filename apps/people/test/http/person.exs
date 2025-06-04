@@ -2,11 +2,7 @@ defmodule People.Http.PersonTest do
   use ExUnit.Case, async: false
 
   use People.DataCase
-  import Plug.Test
-  import Plug.Conn
-
-  alias People.Http.Router
-  alias People.Infrastructure.Db.Repo
+  use People.Http.ConnCase
 
   @opts Router.init([])
 
@@ -17,19 +13,8 @@ defmodule People.Http.PersonTest do
     "date_of_birth" => "1990-01-01"
   }
 
-  setup do
-    Ecto.Adapters.SQL.Sandbox.mode(Repo, {:shared, self()})
-
-    {:ok, _} = start_supervised({Bandit, plug: People.Http.Router, port: 4001})
-
-    :ok
-  end
-
-  defp do_api_call(method, route, data \\ "") do
-    conn =
-      conn(method, route, Jason.encode!(data))
-      |> put_req_header("content-type", "application/json")
-      |> Router.call(@opts)
+  defp do_api_call(method, path, data \\ "") do
+    conn = build_conn(method, path, data)
 
     decoded_resp_body =
       case conn.resp_body != "" do

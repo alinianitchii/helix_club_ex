@@ -4,22 +4,11 @@ defmodule Memberships.Http.MembershipsTest do
   use Memberships.DataCase
   use Memberships.Http.ConnCase
 
-  import Plug.Test
-  import Plug.Conn
-
-  alias Memberships.Http.Router
-  alias Memberships.Infrastructure.Db.Repo
-
   @membership_fixture %{
     person_id: UUID.uuid4(),
     type: "annual",
     start_date: "2023-03-23"
   }
-
-  setup do
-    Ecto.Adapters.SQL.Sandbox.mode(Repo, {:shared, self()})
-    :ok
-  end
 
   # if I'm ok with this implementation it can be moved to ConnCase
   defp do_api_call(method, path, data \\ "") do
