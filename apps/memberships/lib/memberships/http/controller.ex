@@ -19,8 +19,6 @@ defmodule Memberships.Http.Controller do
   end
 
   def get(conn, id) do
-    IO.inspect("cioa")
-
     case GetMembershipById.execute(id) do
       {:error, :not_found} ->
         conn
