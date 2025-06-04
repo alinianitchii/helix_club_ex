@@ -1,12 +1,9 @@
 defmodule Memberships.Domain.DurationValueObject do
+  alias Memberships.Domain.MembershipTypes
+
   defstruct [:type, :start_date, :end_date]
 
-  @valid_types [:yearly, :quarterly, :monthly]
-  @type_months %{
-    yearly: 12,
-    quarterly: 4,
-    monthly: 1
-  }
+  @valid_types MembershipTypes.all()
 
   def new(_type, start_date) when not is_struct(start_date, Date),
     do: {:error, DomainError.new(:invalid_date, "Invalid start date")}
@@ -15,7 +12,7 @@ defmodule Memberships.Domain.DurationValueObject do
     do: {:error, DomainError.new(:invalid_type, "Invalid duration type")}
 
   def new(type, start_date) do
-    end_date = add_months_to_date(start_date, Map.fetch!(@type_months, type))
+    end_date = add_months_to_date(start_date, MembershipTypes.type_duration(type))
 
     {:ok,
      %__MODULE__{
