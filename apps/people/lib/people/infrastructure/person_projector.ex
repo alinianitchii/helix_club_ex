@@ -8,6 +8,8 @@ defmodule People.EventSubscriber do
 
   def init(_) do
     People.EventBus.subscribe("person_domain_events")
+
+    # People.EventBus.subscribe("membership_domain_events") this is working 🥳, find a way to test it
     {:ok, %{}}
   end
 

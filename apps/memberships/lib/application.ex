@@ -7,7 +7,7 @@ defmodule Memberships.Application do
   def start(_type, _args) do
     children = [
       Memberships.Infrastructure.Db.Repo,
-      # {Bandit, plug: Memberships.Http.Router, scheme: :http, port: 4001}
+      {Bandit, plug: Memberships.Http.Router, scheme: :http, port: 4001},
       Memberships.Infrastructure.MembershipEventSubscriber
     ]
 
