@@ -8,7 +8,6 @@ defmodule Memberships.Application do
     children = [
       Memberships.Infrastructure.Db.Repo,
       # {Bandit, plug: Memberships.Http.Router, scheme: :http, port: 4001}
-      {Phoenix.PubSub, [name: Memberships.PubSub, pool_size: 1]},
       Memberships.Infrastructure.MembershipEventSubscriber
     ]
 

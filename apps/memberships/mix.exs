@@ -41,7 +41,7 @@ defmodule Memberships.MixProject do
       {:uuid, "~> 1.1"},
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
-      {:phoenix_pubsub, "~> 2.0"},
+      {:event_bus, in_umbrella: true},
       {:bandit, "~> 1.0"}
     ]
   end

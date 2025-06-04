@@ -18,7 +18,7 @@ defmodule People.Infrastructure.Repository.PersonWriteRepoTest do
       date_of_birth: %BirthDateValueObject{value: ~D[1990-01-01]}
     }
 
-    Phoenix.PubSub.subscribe(People.PubSub, "person_domain_events")
+    EventBus.subscribe("person_domain_events")
 
     {:ok, %{person: person}}
   end

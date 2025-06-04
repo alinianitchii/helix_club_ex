@@ -7,7 +7,7 @@ defmodule People.EventSubscriber do
   def start_link(_), do: GenServer.start_link(__MODULE__, %{})
 
   def init(_) do
-    Phoenix.PubSub.subscribe(People.PubSub, "person_domain_events")
+    EventBus.subscribe("person_domain_events")
     {:ok, %{}}
   end
 
