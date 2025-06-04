@@ -9,7 +9,6 @@ defmodule People.Application do
   def start(_type, _args) do
     children = [
       People.Infrastructure.Db.Repo,
-      {Phoenix.PubSub, [name: People.PubSub, pool_size: 1]},
       People.EventSubscriber,
       {Bandit, plug: People.Http.Router, scheme: :http, port: 4000}
     ]
