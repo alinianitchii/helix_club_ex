@@ -2,7 +2,9 @@ defmodule People.Domain.EmailValueObject do
   @enforce_keys [:value]
   defstruct [:value]
 
-  @email_regex ~r/^[\w.!#$%&’*+\-\/=?\^`{|}~]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$/i
+  defp email_regex do
+    ~r/^[\w.!#$%&’*+\-\/=?\^`{|}~]+@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*$/i
+  end
 
   def new(raw_email) when is_binary(raw_email) do
     with {:ok, valid_email} <- normalize_and_validate(raw_email) do
@@ -22,7 +24,7 @@ defmodule People.Domain.EmailValueObject do
   end
 
   defp validate(email) do
-    if email =~ @email_regex do
+    if Regex.match?(email_regex(), email) do
       {:ok, email}
     else
       {:error, DomainError.new(:invalid_email, "Invalid email")}
