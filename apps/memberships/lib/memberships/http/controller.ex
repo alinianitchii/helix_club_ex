@@ -1,7 +1,7 @@
 defmodule Memberships.Http.Controller do
   import Plug.Conn
 
-  alias Memberships.Application.Command.CreateMembership
+  alias Memberships.Application.Command.SubmitApplication
   alias Memberships.Application.Query.GetMembershipById
 
   def create(conn, params) do
@@ -9,7 +9,7 @@ defmodule Memberships.Http.Controller do
 
     params_with_id = Map.merge(params, %{"id" => id})
 
-    case CreateMembership.execute(params_with_id) do
+    case SubmitApplication.execute(params_with_id) do
       {:ok, _} ->
         send_resp(conn, 201, Jason.encode!(%{id: id}))
 

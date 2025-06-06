@@ -1,5 +1,5 @@
 defmodule Memberships.Domain.Commands do
-  defmodule Create do
+  defmodule SubmitFreeApplication do
     @enforce_keys [:id, :person_id]
     defstruct [:id, :person_id, :type, :membership_type_id, :start_date, :price]
   end

@@ -1,4 +1,4 @@
-defmodule Memberships.Application.Command.CreateMembership do
+defmodule Memberships.Application.Command.SubmitApplication do
   alias Memberships.Domain.MembershipAggregate
   alias Memberships.Domain.Commands
   alias Memberships.Infrastructure.Repositories.MembershipWriteRepo
@@ -21,7 +21,7 @@ defmodule Memberships.Application.Command.CreateMembership do
     with {:ok, parsed_start_date} <- Date.from_iso8601(start_date),
          {:ok, membership_type} <- MembershipTypes.get_membership_type(membership_type_id) do
       {:ok,
-       %Commands.Create{
+       %Commands.SubmitFreeApplication{
          id: id,
          person_id: person_id,
          membership_type_id: membership_type_id,

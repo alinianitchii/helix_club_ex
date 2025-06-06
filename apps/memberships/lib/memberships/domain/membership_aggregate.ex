@@ -1,5 +1,5 @@
 defmodule Memberships.Domain.MembershipAggregate do
-  alias Memberships.Domain.Commands.Create
+  alias Memberships.Domain.Commands.SubmitFreeApplication
   alias Memberships.Domain.Events.MembershipCreated
   alias Memberships.Domain.DurationValueObject
   alias Memberships.Domain.PriceValueObject
@@ -11,7 +11,7 @@ defmodule Memberships.Domain.MembershipAggregate do
   defp create_price(price) when price == nil, do: {:ok, nil}
   defp create_price(price), do: PriceValueObject.new(price)
 
-  def decide(nil, %Create{} = cmd) do
+  def decide(nil, %SubmitFreeApplication{} = cmd) do
     with {:ok, duration} <- DurationValueObject.new(cmd.type, cmd.start_date),
          {:ok, price} <- create_price(cmd.price) do
       {:ok,
