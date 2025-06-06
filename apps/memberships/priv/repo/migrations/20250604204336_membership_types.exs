@@ -7,7 +7,7 @@ defmodule Memberships.Repo.Migrations.CreateMembershipTypes do
       add :name, :string, null: false
       add :type, :string, null: false
       add :description, :text
-      add :price_id, :string
+      add :price, :float
       add :archived, :boolean, default: false
 
       timestamps()

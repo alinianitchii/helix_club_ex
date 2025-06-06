@@ -8,7 +8,7 @@ defmodule Memberships.Http.MembershipTypeControllerTest do
     "name" => "Quarterly Youth",
     "type" => "quarterly",
     "description" => "For students",
-    "price_id" => "price_456"
+    "price" => 100
   }
 
   test "POST /membership-types creates and emits event" do
@@ -17,9 +17,10 @@ defmodule Memberships.Http.MembershipTypeControllerTest do
 
     %{"id" => id} = Jason.decode!(conn.resp_body)
     assert MembershipTypes.get_membership_type!(id).type == :quarterly
+    assert MembershipTypes.get_membership_type!(id).price == 100
   end
 
-  test "GET /membership_types returns the list" do
+  test "GET /membership-types returns the list" do
     MembershipTypes.create_membership_type(%{
       @valid_attrs
       | "type" => "monthly",
