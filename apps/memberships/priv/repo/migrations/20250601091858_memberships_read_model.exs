@@ -9,6 +9,7 @@ defmodule Memberships.Infrastructure.Db.Repo.Migrations.MembershipsReadModel do
      	add :membership_type_id, :string
      	add :start_date, :date
       add :end_date, :date
+      add :price, :float
 
      	timestamps()
   	end

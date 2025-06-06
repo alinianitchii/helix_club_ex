@@ -30,8 +30,11 @@ defmodule Memberships.Domain.MembershipAggregateTest do
       assert %DurationValueObject{} = membership.duration
     end
 
-    test "emits MembershipCreated event with correct fields", %{event: event, command: command} do
-      assert %Events.MembershipCreated{} = event
+    test "emits FreeMembershipApplicationSubmitted event with correct fields", %{
+      event: event,
+      command: command
+    } do
+      assert %Events.FreeMembershipApplicationSubmitted{} = event
 
       assert event.id == command.id
       assert event.person_id == command.person_id
@@ -60,14 +63,18 @@ defmodule Memberships.Domain.MembershipAggregateTest do
       assert %PriceValueObject{} = membership.price
     end
 
-    test "emits MembershipCreated event with correct fields", %{event: event, command: command} do
-      assert %Events.MembershipCreated{} = event
+    test "emits PaidMembershipApplicationSubmitted event with correct fields", %{
+      event: event,
+      command: command
+    } do
+      assert %Events.PaidMembershipApplicationSubmitted{} = event
 
       assert event.id == command.id
       assert event.person_id == command.person_id
       assert event.type == command.type
       assert event.start_date == command.start_date
       assert %Date{} = event.end_date
+      assert is_number(event.price)
     end
   end
 end

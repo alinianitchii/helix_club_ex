@@ -29,9 +29,13 @@ end
 
 defmodule Memberships.Infrastructure.Projectors.MembershipProjector do
   alias Memberships.Infrastructure.Repositories.MembershipReadRepo
-  alias Memberships.Domain.Events.MembershipCreated
 
-  def handle(%MembershipCreated{} = event) do
+  alias Memberships.Domain.Events.{
+    FreeMembershipApplicationSubmitted,
+    PaidMembershipApplicationSubmitted
+  }
+
+  def handle(%FreeMembershipApplicationSubmitted{} = event) do
     MembershipReadRepo.upsert(%{
       id: event.id,
       person_id: event.person_id,
@@ -39,6 +43,18 @@ defmodule Memberships.Infrastructure.Projectors.MembershipProjector do
       membership_type_id: event.membership_type_id,
       start_date: event.start_date,
       end_date: event.end_date
+    })
+  end
+
+  def handle(%PaidMembershipApplicationSubmitted{} = event) do
+    MembershipReadRepo.upsert(%{
+      id: event.id,
+      person_id: event.person_id,
+      type: Atom.to_string(event.type),
+      membership_type_id: event.membership_type_id,
+      start_date: event.start_date,
+      end_date: event.end_date,
+      price: event.price
     })
   end
 end

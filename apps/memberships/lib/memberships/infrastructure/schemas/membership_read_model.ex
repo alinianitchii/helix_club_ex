@@ -9,6 +9,7 @@ defmodule Memberships.Infrastructure.Db.Schema.MembershipReadModel do
     field :membership_type_id, :string
     field :start_date, :date
     field :end_date, :date
+    field :price, :float
 
     timestamps()
   end
