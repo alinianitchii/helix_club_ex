@@ -1,0 +1,14 @@
+defmodule Memberships.Domain.PaymentStatusValueObject do
+  defstruct [:status]
+
+  @valid_statuses [:incomplete, :pending, :overdue, :paid]
+
+  def new(), do: {:ok, %__MODULE__{status: :incomplete}}
+
+  def change(new_status) when new_status not in @valid_statuses do
+    {:error, %DomainError{code: :invalid_value, message: "Invalid payment status"}}
+  end
+
+  # I may enforce the status changes order
+  def change(new_status), do: {:ok, %__MODULE__{status: new_status}}
+end
