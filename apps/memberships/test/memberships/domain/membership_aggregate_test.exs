@@ -43,7 +43,7 @@ defmodule Memberships.Domain.MembershipAggregateTest do
 
   describe "create with price" do
     setup do
-      command = %Commands.SubmitFreeApplication{
+      command = %Commands.SubmitPaidApplication{
         id: "membership_123",
         person_id: "person_123",
         type: :yearly,

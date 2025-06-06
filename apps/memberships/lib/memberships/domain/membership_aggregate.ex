@@ -1,5 +1,5 @@
 defmodule Memberships.Domain.MembershipAggregate do
-  alias Memberships.Domain.Commands.SubmitFreeApplication
+  alias Memberships.Domain.Commands.{SubmitFreeApplication, SubmitPaidApplication}
   alias Memberships.Domain.Events.MembershipCreated
   alias Memberships.Domain.DurationValueObject
   alias Memberships.Domain.PriceValueObject
@@ -8,12 +8,25 @@ defmodule Memberships.Domain.MembershipAggregate do
 
   defstruct [:id, :person_id, :duration, :membership_type_id, :price, :payment, :med_cert]
 
-  defp create_price(price) when price == nil, do: {:ok, nil}
-  defp create_price(price), do: PriceValueObject.new(price)
-
   def decide(nil, %SubmitFreeApplication{} = cmd) do
+    with {:ok, duration} <- DurationValueObject.new(cmd.type, cmd.start_date) do
+      {:ok,
+       %MembershipCreated{
+         id: cmd.id,
+         person_id: cmd.person_id,
+         type: duration.type,
+         membership_type_id: cmd.membership_type_id,
+         start_date: duration.start_date,
+         end_date: duration.end_date
+       }}
+    else
+      {:error, %DomainError{} = error} -> {:error, error}
+    end
+  end
+
+  def decide(nil, %SubmitPaidApplication{} = cmd) do
     with {:ok, duration} <- DurationValueObject.new(cmd.type, cmd.start_date),
-         {:ok, price} <- create_price(cmd.price) do
+         {:ok, price} <- PriceValueObject.new(cmd.price) do
       {:ok,
        %MembershipCreated{
          id: cmd.id,
