@@ -1,6 +1,8 @@
 defmodule Memberships.Domain.MembershipAggregateTest do
   use ExUnit.Case
 
+  alias Memberships.Domain.PaymentStatusValueObject
+  alias Memberships.Domain.MedicalCertificateStatusValueObject
   alias Memberships.Domain.Commands
   alias Memberships.Domain.Events
   alias Memberships.Domain.DurationValueObject
@@ -30,6 +32,10 @@ defmodule Memberships.Domain.MembershipAggregateTest do
       assert %DurationValueObject{} = membership.duration
     end
 
+    test "creates medical certificate value object", %{membership: membership} do
+      assert %MedicalCertificateStatusValueObject{} = membership.med_cert
+    end
+
     test "emits FreeMembershipApplicationSubmitted event with correct fields", %{
       event: event,
       command: command
@@ -41,6 +47,7 @@ defmodule Memberships.Domain.MembershipAggregateTest do
       assert event.type == command.type
       assert event.start_date == command.start_date
       assert %Date{} = event.end_date
+      assert event.med_cert_status == :incomplete
     end
   end
 
@@ -63,6 +70,14 @@ defmodule Memberships.Domain.MembershipAggregateTest do
       assert %PriceValueObject{} = membership.price
     end
 
+    test "creates medical certificate value object", %{membership: membership} do
+      assert %MedicalCertificateStatusValueObject{} = membership.med_cert
+    end
+
+    test "creates payment value object", %{membership: membership} do
+      assert %PaymentStatusValueObject{} = membership.payment
+    end
+
     test "emits PaidMembershipApplicationSubmitted event with correct fields", %{
       event: event,
       command: command
@@ -75,6 +90,8 @@ defmodule Memberships.Domain.MembershipAggregateTest do
       assert event.start_date == command.start_date
       assert %Date{} = event.end_date
       assert is_number(event.price)
+      assert event.med_cert_status == :incomplete
+      assert event.payment_status == :incomplete
     end
   end
 end

@@ -1,4 +1,6 @@
 defmodule Memberships.Domain.MembershipAggregate do
+  alias Memberships.Domain.PaymentStatusValueObject
+  alias Memberships.Domain.MedicalCertificateStatusValueObject
   alias Memberships.Domain.Commands.{SubmitFreeApplication, SubmitPaidApplication}
 
   alias Memberships.Domain.Events.{
@@ -14,7 +16,8 @@ defmodule Memberships.Domain.MembershipAggregate do
   defstruct [:id, :person_id, :duration, :membership_type_id, :price, :payment, :med_cert]
 
   def decide(nil, %SubmitFreeApplication{} = cmd) do
-    with {:ok, duration} <- DurationValueObject.new(cmd.type, cmd.start_date) do
+    with {:ok, duration} <- DurationValueObject.new(cmd.type, cmd.start_date),
+         {:ok, med_cert} <- MedicalCertificateStatusValueObject.new() do
       {:ok,
        %FreeMembershipApplicationSubmitted{
          id: cmd.id,
@@ -22,7 +25,8 @@ defmodule Memberships.Domain.MembershipAggregate do
          type: duration.type,
          membership_type_id: cmd.membership_type_id,
          start_date: duration.start_date,
-         end_date: duration.end_date
+         end_date: duration.end_date,
+         med_cert_status: med_cert.status
        }}
     else
       {:error, %DomainError{} = error} -> {:error, error}
@@ -31,7 +35,9 @@ defmodule Memberships.Domain.MembershipAggregate do
 
   def decide(nil, %SubmitPaidApplication{} = cmd) do
     with {:ok, duration} <- DurationValueObject.new(cmd.type, cmd.start_date),
-         {:ok, price} <- PriceValueObject.new(cmd.price) do
+         {:ok, price} <- PriceValueObject.new(cmd.price),
+         {:ok, med_cert} <- MedicalCertificateStatusValueObject.new(),
+         {:ok, payment} <- PaymentStatusValueObject.new() do
       {:ok,
        %PaidMembershipApplicationSubmitted{
          id: cmd.id,
@@ -40,7 +46,9 @@ defmodule Memberships.Domain.MembershipAggregate do
          membership_type_id: cmd.membership_type_id,
          start_date: duration.start_date,
          end_date: duration.end_date,
-         price: price.value
+         price: price.value,
+         med_cert_status: med_cert.status,
+         payment_status: payment.status
        }}
     else
       {:error, %DomainError{} = error} -> {:error, error}
@@ -54,7 +62,8 @@ defmodule Memberships.Domain.MembershipAggregate do
       type: type,
       membership_type_id: membership_type_id,
       start_date: start_date,
-      end_date: end_date
+      end_date: end_date,
+      med_cert_status: med_cert_status
     } = event
 
     %MembershipAggregate{
@@ -62,8 +71,9 @@ defmodule Memberships.Domain.MembershipAggregate do
       person_id: person_id,
       duration: %DurationValueObject{type: type, start_date: start_date, end_date: end_date},
       membership_type_id: membership_type_id,
-      payment: nil,
-      med_cert: nil
+      med_cert: %MedicalCertificateStatusValueObject{status: med_cert_status},
+      price: nil,
+      payment: nil
     }
   end
 
@@ -75,7 +85,9 @@ defmodule Memberships.Domain.MembershipAggregate do
       membership_type_id: membership_type_id,
       start_date: start_date,
       end_date: end_date,
-      price: price
+      price: price,
+      med_cert_status: med_cert_status,
+      payment_status: payment_status
     } = event
 
     %MembershipAggregate{
@@ -84,8 +96,8 @@ defmodule Memberships.Domain.MembershipAggregate do
       duration: %DurationValueObject{type: type, start_date: start_date, end_date: end_date},
       membership_type_id: membership_type_id,
       price: %PriceValueObject{value: price},
-      payment: nil,
-      med_cert: nil
+      med_cert: %MedicalCertificateStatusValueObject{status: med_cert_status},
+      payment: %PaymentStatusValueObject{status: payment_status}
     }
   end
 
