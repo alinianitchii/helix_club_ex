@@ -4,11 +4,22 @@ defmodule Memberships.Http.MembershipsTest do
   use Memberships.DataCase
   use Memberships.Http.ConnCase
 
-  @membership_fixture %{
-    person_id: UUID.uuid4(),
-    type: "yearly",
-    start_date: "2023-03-23"
-  }
+  setup do
+    {:ok, mt} =
+      Memberships.MembershipTypes.create_membership_type(%{
+        "name" => "Test Type",
+        "type" => "yearly",
+        "description" => "Pre-seeded type",
+        "price_id" => "seeded_price"
+      })
+
+    {:ok,
+     create_membership_fixture: %{
+       person_id: UUID.uuid4(),
+       start_date: "2023-03-23",
+       membership_type_id: mt.id
+     }}
+  end
 
   # if I'm ok with this implementation it can be moved to ConnCase
   defp do_api_call(method, path, data \\ "") do
@@ -24,9 +35,9 @@ defmodule Memberships.Http.MembershipsTest do
   end
 
   describe "POST /memberships" do
-    test "creates a new membership" do
+    test "creates a new membership", %{create_membership_fixture: fixture} do
       {:ok, resp} =
-        do_api_call(:post, "/memberships", @membership_fixture)
+        do_api_call(:post, "/memberships", fixture)
 
       assert resp.status == 201
       assert Map.get(resp.decoded, "id") != nil
@@ -34,9 +45,9 @@ defmodule Memberships.Http.MembershipsTest do
   end
 
   describe "GET /memberships/:id" do
-    test "retrieves a membership by id" do
+    test "retrieves a membership by id", %{create_membership_fixture: fixture} do
       {:ok, resp} =
-        do_api_call(:post, "/memberships", @membership_fixture)
+        do_api_call(:post, "/memberships", fixture)
 
       %{"id" => id} = resp.decoded
 
@@ -46,7 +57,12 @@ defmodule Memberships.Http.MembershipsTest do
         do_api_call(:get, "/memberships/#{id}")
 
       assert resp.status == 200
-      assert Map.get(resp.decoded, "id") != nil
+      assert resp.decoded["id"] != nil
+      assert resp.decoded["person_id"] == fixture.person_id
+      assert resp.decoded["type"] != nil
+      assert resp.decoded["start_date"] == fixture.start_date
+      assert resp.decoded["end_date"] != nil
+      assert resp.decoded["membership_type_id"] == fixture.membership_type_id
     end
   end
 end

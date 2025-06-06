@@ -36,6 +36,7 @@ defmodule Memberships.Infrastructure.Projectors.MembershipProjector do
       id: event.id,
       person_id: event.person_id,
       type: Atom.to_string(event.type),
+      membership_type_id: event.membership_type_id,
       start_date: event.start_date,
       end_date: event.end_date
     })

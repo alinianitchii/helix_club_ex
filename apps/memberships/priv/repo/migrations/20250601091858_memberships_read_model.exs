@@ -6,6 +6,7 @@ defmodule Memberships.Infrastructure.Db.Repo.Migrations.MembershipsReadModel do
  			add :id, :uuid, primary_key: true
  	 		add :person_id, :string
  	  	add :type, :string
+     	add :membership_type_id, :string
      	add :start_date, :date
       add :end_date, :date
 

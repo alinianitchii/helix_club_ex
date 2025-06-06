@@ -7,6 +7,13 @@ defmodule Memberships.MembershipTypes do
 
   def get_membership_type!(id), do: Repo.get!(MembershipType, id)
 
+  def get_membership_type(id) do
+    case Repo.get(MembershipType, id) do
+      nil -> {:error, DomainError.new(:not_found, "Membership type not found")}
+      membership_type -> {:ok, membership_type}
+    end
+  end
+
   def create_membership_type(attrs) do
     %MembershipType{}
     |> MembershipType.changeset(attrs)
