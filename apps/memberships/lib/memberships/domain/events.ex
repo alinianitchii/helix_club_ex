@@ -8,7 +8,8 @@ defmodule Memberships.Domain.Events do
       :membership_type_id,
       :start_date,
       :end_date,
-      :med_cert_status
+      :med_cert_status,
+      :status
     ]
   end
 
@@ -23,7 +24,8 @@ defmodule Memberships.Domain.Events do
       :end_date,
       :price,
       :med_cert_status,
-      :payment_status
+      :payment_status,
+      :status
     ]
   end
 end

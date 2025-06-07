@@ -1,6 +1,7 @@
 defmodule Memberships.Domain.MembershipAggregateTest do
   use ExUnit.Case
 
+  alias Memberships.Domain.StatusValueObject
   alias Memberships.Domain.PaymentStatusValueObject
   alias Memberships.Domain.MedicalCertificateStatusValueObject
   alias Memberships.Domain.Commands
@@ -34,6 +35,10 @@ defmodule Memberships.Domain.MembershipAggregateTest do
 
     test "creates medical certificate value object", %{membership: membership} do
       assert %MedicalCertificateStatusValueObject{} = membership.med_cert
+    end
+
+    test "creates status value object", %{membership: membership} do
+      assert %StatusValueObject{} = membership.status
     end
 
     test "emits FreeMembershipApplicationSubmitted event with correct fields", %{
@@ -76,6 +81,10 @@ defmodule Memberships.Domain.MembershipAggregateTest do
 
     test "creates payment value object", %{membership: membership} do
       assert %PaymentStatusValueObject{} = membership.payment
+    end
+
+    test "creates status value object", %{membership: membership} do
+      assert %StatusValueObject{} = membership.status
     end
 
     test "emits PaidMembershipApplicationSubmitted event with correct fields", %{
