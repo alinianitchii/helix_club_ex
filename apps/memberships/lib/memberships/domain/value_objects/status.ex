@@ -1,7 +1,7 @@
 defmodule Memberships.Domain.StatusValueObject do
   defstruct [:status]
 
-  @valid_statuses [:pending, :activated, :suspended, :archived, :canceled]
+  @valid_statuses [:pending, :incomplete, :activated, :suspended, :archived, :canceled]
   def new(), do: {:ok, %__MODULE__{status: :pending}}
 
   # enable piping
@@ -23,6 +23,14 @@ defmodule Memberships.Domain.StatusValueObject do
 
   defp state_transition(_, :pending) do
     {:error, DomainError.new(:invalid_state, "Invalid state transition to pending")}
+  end
+
+  defp state_transition(:pending, :incomplete) do
+    {:ok, %__MODULE__{status: :incomplete}}
+  end
+
+  defp state_transition(_, :incomplete) do
+    {:error, DomainError.new(:invalid_state, "Invalid state transition to incomplete")}
   end
 
   defp state_transition(:cancelled, _) do

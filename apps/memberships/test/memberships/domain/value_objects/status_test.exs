@@ -51,5 +51,13 @@ defmodule Memberships.Domain.StatusValueObjectTest do
                  "Invalid state transition to pending"
                )
     end
+
+    test "from pending to incomplete", %{default: pending} do
+      {:ok, vo} =
+        pending
+        |> StatusValueObject.change(:incomplete)
+
+      assert vo.status == :incomplete
+    end
   end
 end
