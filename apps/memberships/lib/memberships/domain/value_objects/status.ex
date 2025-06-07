@@ -12,6 +12,13 @@ defmodule Memberships.Domain.StatusValueObject do
     state_transition(current, new_status)
   end
 
+  def is_valid_state_transition?(%__MODULE__{status: current}, new_status) do
+    case state_transition(current, new_status) do
+      {:ok, _} -> true
+      {:error, _} -> false
+    end
+  end
+
   defp state_transition(_, new_status) when new_status not in @valid_statuses do
     {:error, DomainError.new(:invalid_value, "Invalid membership status value")}
   end

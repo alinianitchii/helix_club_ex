@@ -28,4 +28,19 @@ defmodule Memberships.Domain.Events do
       :status
     ]
   end
+
+  defmodule MembershipMedicalCertificationStatusChanged do
+    @derive Jason.Encoder
+    defstruct [:id, :status, :previous_status]
+  end
+
+  defmodule MembershipPaymentStatusChanged do
+    @derive Jason.Encoder
+    defstruct [:id, :status, :previous_status]
+  end
+
+  defmodule MembershipActivated do
+    @derive Jason.Encoder
+    defstruct [:id]
+  end
 end

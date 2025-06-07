@@ -12,4 +12,8 @@ defmodule Memberships.Domain.MedicalCertificateStatusValueObject do
   def change(new_status) do
     {:ok, %__MODULE__{status: new_status}}
   end
+
+  def is_valid?(%__MODULE__{status: current}) do
+    current == :valid
+  end
 end

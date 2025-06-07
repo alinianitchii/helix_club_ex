@@ -10,18 +10,36 @@ defmodule Memberships.Domain.MembershipAggregateTest do
   alias Memberships.Domain.PriceValueObject
   alias Memberships.Domain.MembershipAggregate
 
+  defp create_free_membership do
+    command = %Commands.SubmitFreeApplication{
+      id: "membership_123",
+      person_id: "person_123",
+      type: :yearly,
+      start_date: ~D[2025-06-01]
+    }
+
+    {:ok, membership, event} = MembershipAggregate.evolve(nil, command)
+
+    %{command: command, membership: membership, event: event}
+  end
+
+  defp create_paid_membership do
+    command = %Commands.SubmitPaidApplication{
+      id: "membership_123",
+      person_id: "person_123",
+      type: :yearly,
+      start_date: ~D[2025-06-01],
+      price: 100.00
+    }
+
+    {:ok, membership, event} = MembershipAggregate.evolve(nil, command)
+
+    %{command: command, membership: membership, event: event}
+  end
+
   describe "create" do
     setup do
-      command = %Commands.SubmitFreeApplication{
-        id: "membership_123",
-        person_id: "person_123",
-        type: :yearly,
-        start_date: ~D[2025-06-01]
-      }
-
-      {:ok, membership, event} = MembershipAggregate.evolve(nil, command)
-
-      %{command: command, membership: membership, event: event}
+      create_free_membership()
     end
 
     test "assigns primitive fields from command", %{command: command, membership: membership} do
@@ -58,17 +76,7 @@ defmodule Memberships.Domain.MembershipAggregateTest do
 
   describe "create with price" do
     setup do
-      command = %Commands.SubmitPaidApplication{
-        id: "membership_123",
-        person_id: "person_123",
-        type: :yearly,
-        start_date: ~D[2025-06-01],
-        price: 100.00
-      }
-
-      {:ok, membership, event} = MembershipAggregate.evolve(nil, command)
-
-      %{command: command, membership: membership, event: event}
+      create_paid_membership()
     end
 
     test "creates price value object", %{membership: membership} do
@@ -101,6 +109,57 @@ defmodule Memberships.Domain.MembershipAggregateTest do
       assert is_number(event.price)
       assert event.med_cert_status == :incomplete
       assert event.payment_status == :incomplete
+    end
+  end
+
+  describe "activate free membership" do
+    setup do
+      create_free_membership()
+    end
+
+    test "medical certificate status still incomplete", %{membership: membership} do
+      command = %Commands.Activate{}
+
+      {:error, reason} = MembershipAggregate.evolve(membership, command)
+
+      assert reason == DomainError.new(:invalid_state, "Invalid medical certificate")
+    end
+  end
+
+  describe "activate paid membership" do
+    setup do
+      create_paid_membership()
+    end
+
+    test "medical certificate is not valid", %{membership: membership} do
+      command = %Commands.Activate{}
+
+      {:error, reason} = MembershipAggregate.evolve(membership, command)
+
+      assert reason == DomainError.new(:invalid_state, "Invalid medical certificate")
+    end
+
+    test "payment status is not paid", %{membership: membership} do
+      change_medical_status_cmd = %Commands.ChangeMedicalCertificateStatus{status: :valid}
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, change_medical_status_cmd)
+
+      activate_cmd = %Commands.Activate{}
+      {:error, reason} = MembershipAggregate.evolve(membership, activate_cmd)
+
+      assert reason == DomainError.new(:invalid_state, "Invalid payment status")
+    end
+
+    test "medical certificate is valid and payment status is paid", %{membership: membership} do
+      change_medical_status_cmd = %Commands.ChangeMedicalCertificateStatus{status: :valid}
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, change_medical_status_cmd)
+
+      change_payment_status_cmd = %Commands.ChangePaymentStatus{status: :paid}
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, change_payment_status_cmd)
+
+      activate_cmd = %Commands.Activate{}
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, activate_cmd)
+
+      assert membership.status.status == :activated
     end
   end
 end

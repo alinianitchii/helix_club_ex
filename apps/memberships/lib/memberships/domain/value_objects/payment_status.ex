@@ -11,4 +11,8 @@ defmodule Memberships.Domain.PaymentStatusValueObject do
 
   # I may enforce the status changes order
   def change(new_status), do: {:ok, %__MODULE__{status: new_status}}
+
+  def is_paid?(%__MODULE__{status: status}) do
+    status == :paid
+  end
 end

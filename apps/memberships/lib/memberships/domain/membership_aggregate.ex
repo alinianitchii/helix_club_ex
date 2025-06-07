@@ -1,12 +1,22 @@
 defmodule Memberships.Domain.MembershipAggregate do
+  alias Memberships.Domain.Commands.ChangePaymentStatus
   alias Memberships.Domain.StatusValueObject
   alias Memberships.Domain.PaymentStatusValueObject
   alias Memberships.Domain.MedicalCertificateStatusValueObject
-  alias Memberships.Domain.Commands.{SubmitFreeApplication, SubmitPaidApplication}
+
+  alias Memberships.Domain.Commands.{
+    SubmitFreeApplication,
+    SubmitPaidApplication,
+    Activate,
+    ChangeMedicalCertificateStatus
+  }
 
   alias Memberships.Domain.Events.{
     FreeMembershipApplicationSubmitted,
-    PaidMembershipApplicationSubmitted
+    PaidMembershipApplicationSubmitted,
+    MembershipMedicalCertificationStatusChanged,
+    MembershipPaymentStatusChanged,
+    MembershipActivated
   }
 
   alias Memberships.Domain.DurationValueObject
@@ -40,8 +50,6 @@ defmodule Memberships.Domain.MembershipAggregate do
          med_cert_status: med_cert.status,
          status: status.status
        }}
-    else
-      {:error, %DomainError{} = error} -> {:error, error}
     end
   end
 
@@ -64,8 +72,54 @@ defmodule Memberships.Domain.MembershipAggregate do
          payment_status: payment.status,
          status: status.status
        }}
-    else
-      {:error, %DomainError{} = error} -> {:error, error}
+    end
+  end
+
+  def decide(%MembershipAggregate{} = state, %ChangeMedicalCertificateStatus{
+        status: new_status
+      }) do
+    with {:ok, med_cert} <- MedicalCertificateStatusValueObject.change(new_status) do
+      {:ok,
+       %MembershipMedicalCertificationStatusChanged{
+         id: state.id,
+         status: med_cert.status,
+         previous_status: state.med_cert.status
+       }}
+    end
+  end
+
+  def decide(%MembershipAggregate{} = state, %ChangePaymentStatus{
+        status: new_status
+      }) do
+    with {:ok, payment} <- PaymentStatusValueObject.change(new_status) do
+      {:ok,
+       %MembershipPaymentStatusChanged{
+         id: state.id,
+         status: payment.status,
+         previous_status: state.payment.status
+       }}
+    end
+  end
+
+  def decide(
+        %MembershipAggregate{id: id, med_cert: med_cert, payment: payment, status: current},
+        %Activate{} = _
+      ) do
+    cond do
+      not StatusValueObject.is_valid_state_transition?(current, :activated) ->
+        {:error, DomainError.new(:invalid_state, "Invalid state transition")}
+
+      not MedicalCertificateStatusValueObject.is_valid?(med_cert) ->
+        {:error, DomainError.new(:invalid_state, "Invalid medical certificate")}
+
+      is_nil(payment) ->
+        {:ok, %MembershipActivated{id: id}}
+
+      not PaymentStatusValueObject.is_paid?(payment) ->
+        {:error, DomainError.new(:invalid_state, "Invalid payment status")}
+
+      true ->
+        {:ok, %MembershipActivated{id: id}}
     end
   end
 
@@ -116,6 +170,30 @@ defmodule Memberships.Domain.MembershipAggregate do
       med_cert: %MedicalCertificateStatusValueObject{status: med_cert_status},
       payment: %PaymentStatusValueObject{status: payment_status},
       status: %StatusValueObject{status: status}
+    }
+  end
+
+  def apply_event(
+        %MembershipAggregate{} = state,
+        %MembershipMedicalCertificationStatusChanged{status: status}
+      ) do
+    %MembershipAggregate{
+      state
+      | med_cert: %MedicalCertificateStatusValueObject{status: status}
+    }
+  end
+
+  def apply_event(%MembershipAggregate{} = state, %MembershipPaymentStatusChanged{status: status}) do
+    %MembershipAggregate{
+      state
+      | payment: %PaymentStatusValueObject{status: status}
+    }
+  end
+
+  def apply_event(%MembershipAggregate{} = state, %MembershipActivated{}) do
+    %MembershipAggregate{
+      state
+      | status: %StatusValueObject{status: :activated}
     }
   end
 
