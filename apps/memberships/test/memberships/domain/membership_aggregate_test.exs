@@ -120,9 +120,19 @@ defmodule Memberships.Domain.MembershipAggregateTest do
     test "medical certificate status still incomplete", %{membership: membership} do
       command = %Commands.Activate{}
 
-      {:error, reason} = MembershipAggregate.evolve(membership, command)
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, command)
 
-      assert reason == DomainError.new(:invalid_state, "Invalid medical certificate")
+      assert membership.status.status == :incomplete
+    end
+
+    test "medical certificate is valid", %{membership: membership} do
+      change_medical_status_cmd = %Commands.ChangeMedicalCertificateStatus{status: :valid}
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, change_medical_status_cmd)
+
+      activate_cmd = %Commands.Activate{}
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, activate_cmd)
+
+      assert membership.status.status == :activated
     end
   end
 
@@ -134,9 +144,9 @@ defmodule Memberships.Domain.MembershipAggregateTest do
     test "medical certificate is not valid", %{membership: membership} do
       command = %Commands.Activate{}
 
-      {:error, reason} = MembershipAggregate.evolve(membership, command)
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, command)
 
-      assert reason == DomainError.new(:invalid_state, "Invalid medical certificate")
+      assert membership.status.status == :incomplete
     end
 
     test "payment status is not paid", %{membership: membership} do
@@ -144,9 +154,9 @@ defmodule Memberships.Domain.MembershipAggregateTest do
       {:ok, membership, _} = MembershipAggregate.evolve(membership, change_medical_status_cmd)
 
       activate_cmd = %Commands.Activate{}
-      {:error, reason} = MembershipAggregate.evolve(membership, activate_cmd)
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, activate_cmd)
 
-      assert reason == DomainError.new(:invalid_state, "Invalid payment status")
+      assert membership.status.status == :incomplete
     end
 
     test "medical certificate is valid and payment status is paid", %{membership: membership} do
@@ -160,6 +170,35 @@ defmodule Memberships.Domain.MembershipAggregateTest do
       {:ok, membership, _} = MembershipAggregate.evolve(membership, activate_cmd)
 
       assert membership.status.status == :activated
+    end
+  end
+
+  describe "activate incomplete membership" do
+    setup do
+      create_free_membership()
+    end
+
+    test "activate again membership with invalid medical certificate", %{membership: membership} do
+      command = %Commands.Activate{}
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, command)
+
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, command)
+
+      assert membership.status.status == :incomplete
+    end
+
+    test "membership with valid medical certificate", %{membership: membership} do
+      activate_cmd = %Commands.Activate{}
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, activate_cmd)
+
+      change_medical_status_cmd = %Commands.ChangeMedicalCertificateStatus{status: :valid}
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, change_medical_status_cmd)
+
+      {:ok, membership, _} = MembershipAggregate.evolve(membership, activate_cmd)
+
+      assert membership.status.status == :activated
+
+      # assert membership.duration.start_date == Date.utc_today() nice to have that incomplete memberships have todays start date and not the preconfigured one
     end
   end
 end

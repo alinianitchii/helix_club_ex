@@ -43,4 +43,9 @@ defmodule Memberships.Domain.Events do
     @derive Jason.Encoder
     defstruct [:id]
   end
+
+  defmodule MembershipUncompleted do
+    @derive Jason.Encoder
+    defstruct [:id, :status, :previous_status, :reason]
+  end
 end

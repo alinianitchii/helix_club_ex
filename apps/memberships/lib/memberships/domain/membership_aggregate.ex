@@ -1,4 +1,5 @@
 defmodule Memberships.Domain.MembershipAggregate do
+  alias Memberships.Domain.Events.MembershipUncompleted
   alias Memberships.Domain.Commands.ChangePaymentStatus
   alias Memberships.Domain.StatusValueObject
   alias Memberships.Domain.PaymentStatusValueObject
@@ -16,7 +17,8 @@ defmodule Memberships.Domain.MembershipAggregate do
     PaidMembershipApplicationSubmitted,
     MembershipMedicalCertificationStatusChanged,
     MembershipPaymentStatusChanged,
-    MembershipActivated
+    MembershipActivated,
+    MembershipUncompleted
   }
 
   alias Memberships.Domain.DurationValueObject
@@ -110,13 +112,25 @@ defmodule Memberships.Domain.MembershipAggregate do
         {:error, DomainError.new(:invalid_state, "Invalid state transition")}
 
       not MedicalCertificateStatusValueObject.is_valid?(med_cert) ->
-        {:error, DomainError.new(:invalid_state, "Invalid medical certificate")}
+        {:ok,
+         %MembershipUncompleted{
+           id: id,
+           status: :incomplete,
+           previous_status: current.status,
+           reason: "Medical certificate is invalid"
+         }}
 
       is_nil(payment) ->
         {:ok, %MembershipActivated{id: id}}
 
       not PaymentStatusValueObject.is_paid?(payment) ->
-        {:error, DomainError.new(:invalid_state, "Invalid payment status")}
+        {:ok,
+         %MembershipUncompleted{
+           id: id,
+           status: :incomplete,
+           previous_status: current.status,
+           reason: "Invalid payment status"
+         }}
 
       true ->
         {:ok, %MembershipActivated{id: id}}
@@ -194,6 +208,13 @@ defmodule Memberships.Domain.MembershipAggregate do
     %MembershipAggregate{
       state
       | status: %StatusValueObject{status: :activated}
+    }
+  end
+
+  def apply_event(%MembershipAggregate{} = state, %MembershipUncompleted{}) do
+    %MembershipAggregate{
+      state
+      | status: %StatusValueObject{status: :incomplete}
     }
   end
 
