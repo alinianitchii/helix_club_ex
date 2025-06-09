@@ -7,18 +7,82 @@ defmodule Payments.Domain.PaymentAggregate do
     defstruct [:id, :amount, :due_date]
   end
 
+  defmodule Pay do
+    defstruct []
+  end
+
+  defmodule EvaluateDueStatus do
+    defstruct []
+  end
+
+  defmodule Cancel do
+    defstruct [:reason]
+  end
+
   defmodule PendingPaymentCreated do
     defstruct [:id, :amount, :due_date, :status]
   end
 
+  defmodule PaymentCashed do
+    defstruct [:id, :status, :previous_status, :cashed_date]
+  end
+
+  defmodule PaymentOverdue do
+    defstruct [:id, :status, :previous_status]
+  end
+
+  defmodule PaymentCanceled do
+    defstruct [:id, :status, :previous_status, :reason]
+  end
+
   def decide(nil, %Create{} = command) do
-    with {:ok, amount} <- ValueObjects.Amount.new(command.amount) do
+    with {:ok, amount} <- ValueObjects.Amount.new(command.amount),
+         {:ok, due_date} <- ValueObjects.DueDate.new(command.due_date),
+         {:ok, status} <- ValueObjects.Status.new() do
       {:ok,
        %PendingPaymentCreated{
          id: command.id,
          amount: amount.value,
-         due_date: command.due_date,
-         status: :pending
+         due_date: due_date.date,
+         status: status.status
+       }}
+    end
+  end
+
+  def decide(%PaymentAggregate{} = state, %Pay{}) do
+    with {:ok, status} = ValueObjects.Status.change(state.status, :paid) do
+      {:ok,
+       %PaymentCashed{
+         id: state.id,
+         status: status.status,
+         previous_status: state.status.status,
+         cashed_date: Date.utc_today()
+       }}
+    end
+  end
+
+  def decide(%PaymentAggregate{} = state, %EvaluateDueStatus{}) do
+    cond do
+      not ValueObjects.Status.is_valid_state_transition?(state.status, :overdue) ->
+        {:error, DomainError.new(:invalid_state, "Invalid state transition")}
+
+      Date.after?(Date.utc_today(), state.due_date.date) ->
+        {:ok,
+         %PaymentOverdue{id: state.id, status: :overdue, previous_status: state.status.status}}
+
+      true ->
+        {:ok, nil}
+    end
+  end
+
+  def decide(%PaymentAggregate{} = state, %Cancel{} = command) do
+    with {:ok, status} = ValueObjects.Status.change(state.status, :canceled) do
+      {:ok,
+       %PaymentCanceled{
+         id: state.id,
+         status: status.status,
+         previous_status: state.status.status,
+         reason: command.reason
        }}
     end
   end
@@ -26,14 +90,42 @@ defmodule Payments.Domain.PaymentAggregate do
   def apply_event(nil, %PendingPaymentCreated{} = event) do
     %PaymentAggregate{
       id: event.id,
-      amount: %ValueObjects.Amount{value: event.amount}
+      amount: %ValueObjects.Amount{value: event.amount},
+      due_date: %ValueObjects.DueDate{date: event.due_date},
+      status: %ValueObjects.Status{status: event.status}
+    }
+  end
+
+  def apply_event(%PaymentAggregate{} = state, %PaymentCashed{} = event) do
+    %PaymentAggregate{
+      state
+      | status: %ValueObjects.Status{status: event.status}
+    }
+  end
+
+  def apply_event(%PaymentAggregate{} = state, %PaymentOverdue{} = event) do
+    %PaymentAggregate{
+      state
+      | status: %ValueObjects.Status{status: event.status}
+    }
+  end
+
+  def apply_event(%PaymentAggregate{} = state, %PaymentCanceled{} = event) do
+    %PaymentAggregate{
+      state
+      | status: %ValueObjects.Status{status: event.status}
     }
   end
 
   def evolve(state, command) do
-    with {:ok, event} <- decide(state, command) do
-      new_state = apply_event(state, event)
-      {:ok, new_state, event}
+    case decide(state, command) do
+      {:ok, nil} ->
+        # In case of a decision without an event. Is it possible according to decider pattern?
+        {:ok, state, nil}
+
+      {:ok, event} ->
+        new_state = apply_event(state, event)
+        {:ok, new_state, event}
     end
   end
 end
