@@ -15,9 +15,9 @@ defmodule Payments.Http.Router do
     Payments.Http.Controller.create(conn, conn.body_params)
   end
 
-  # get "/payments/:id" do
-  #   Payments.Http.Controller.get(conn, id)
-  # end
+  get "/payments/:id" do
+    Payments.Http.Controller.get(conn, id)
+  end
 
   match _ do
     send_resp(conn, 404, "Not found")

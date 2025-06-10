@@ -1,0 +1,50 @@
+defmodule Payments.Infrastructure.Repositories.PaymentsWriteRepo do
+  alias Payments.Infrastructure.Db.Schema.PaymentWriteModel
+  alias Payments.Infrastructure.Db.Repo
+
+  def save(payment, events) when is_list(events) do
+    payment_json = serialize_aggregate(payment)
+
+    payment_changeset =
+      case Repo.get(PaymentWriteModel, payment.id) do
+        nil ->
+          %PaymentWriteModel{id: payment.id}
+          |> PaymentWriteModel.changeset(%{state: payment_json})
+
+        existing ->
+          existing
+          |> PaymentWriteModel.changeset(%{state: payment_json})
+      end
+
+    Repo.insert_or_update(payment_changeset)
+  end
+
+  def save(payment), do: save(payment, [])
+
+  def save_and_publish(payment, events) do
+    case save(payment) do
+      {:ok, _} ->
+        Enum.each(events, &Payments.EventBus.publish/1)
+        {:ok, payment}
+
+      error ->
+        error
+    end
+  end
+
+  defp serialize_aggregate(payment) do
+    %{
+      "id" => payment.id,
+      "customer_id" => payment.customer_id,
+      "product_id" => payment.product_id,
+      "due_date" => %{
+        "date" => Date.to_iso8601(payment.due_date.date)
+      },
+      "amount" => payment.amount.value,
+      "status" => payment.status.status
+    }
+  end
+
+  # defp deserialize_date(nil), do: nil
+  # defp deserialize_date(date_string), do: Date.from_iso8601!(date_string)
+end

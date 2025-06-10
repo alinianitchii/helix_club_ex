@@ -37,10 +37,10 @@ defmodule Payments.Http.PaymentsTest do
       assert resp.status == 200
       assert resp.decoded["id"] != nil
       assert resp.decoded["customer_id"] == fixture.customer_id
-      assert resp.decoded["product_id"] != fixture.product_id
+      assert resp.decoded["product_id"] == fixture.product_id
       assert resp.decoded["due_date"] == fixture.due_date
-      assert resp.decoded["amount"] != :amount
-      assert resp.decoded["status"] != :pending
+      assert resp.decoded["amount"] == fixture.amount
+      assert resp.decoded["status"] == "pending"
     end
   end
 end

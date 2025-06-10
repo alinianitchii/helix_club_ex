@@ -6,9 +6,9 @@ defmodule Payments.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Payments.Infrastructure.Db.Repo,
-      {Bandit, plug: Payments.Http.Router, scheme: :http, port: 4002}
-      # Payments.Infrastructure.PaymentsEventSubscriber
+      Payments.Infrastructure.Db.Repo,
+      {Bandit, plug: Payments.Http.Router, scheme: :http, port: 4002},
+      Payments.Infrastructure.PaymentsEventSubscriber
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

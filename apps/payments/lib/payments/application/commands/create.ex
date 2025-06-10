@@ -1,6 +1,7 @@
 defmodule Payments.Application.Commands.Create do
   alias Payments.Domain.PaymentAggregate
   alias Payments.Domain.PaymentAggregate.{Create}
+  alias Payments.Infrastructure.Repositories.PaymentsWriteRepo
 
   def execute(args) do
     command = %Create{
@@ -11,8 +12,8 @@ defmodule Payments.Application.Commands.Create do
       product_id: args["product_id"]
     }
 
-    with {:ok, payment, event} <- PaymentAggregate.evolve(nil, command) do
-      # {:ok, _} <- PaymentsWriteRepo.save_and_publish(payment, [event]) do
+    with {:ok, payment, event} <- PaymentAggregate.evolve(nil, command),
+         {:ok, _} <- PaymentsWriteRepo.save_and_publish(payment, [event]) do
       # it might not return the id
       {:ok, payment.id}
     end
