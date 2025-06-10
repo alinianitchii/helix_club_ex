@@ -1,5 +1,7 @@
 import Config
 
+config :logger, level: :debug
+
 config :people, People.Infrastructure.Db.Repo,
   username: "postgres",
   password: "postgres",
@@ -8,9 +10,6 @@ config :people, People.Infrastructure.Db.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 20,
   ownership_timeout: 10_000
-
-# Configure the logger
-config :logger, level: :debug
 
 # Configure the sandbox
 config :people, :sql_sandbox, true
@@ -30,3 +29,15 @@ config :memberships, Memberships.Infrastructure.Db.Repo,
 config :memberships, :sql_sandbox, true
 
 # config :people, http_port: 4000
+
+config :payments, Payments.Infrastructure.Db.Repo,
+  username: "postgres",
+  password: "postgres",
+  database: "payments_test",
+  hostname: "localhost",
+  pool: Ecto.Adapters.SQL.Sandbox,
+  pool_size: 20,
+  ownership_timeout: 10_000
+
+# Configure the sandbox
+config :payments, :sql_sandbox, true

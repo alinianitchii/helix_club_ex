@@ -23,4 +23,24 @@ defmodule Payments.Http.PaymentsTest do
       assert resp.decoded["id"] != nil
     end
   end
+
+  describe "GET /payments/:id" do
+    test "retrieves a payment by id", %{create_payment_fixture: fixture} do
+      {:ok, resp} = do_api_call(:post, "/payments", fixture)
+
+      %{"id" => id} = resp.decoded
+
+      Process.sleep(100)
+
+      {:ok, resp} = do_api_call(:get, "/payments/#{id}")
+
+      assert resp.status == 200
+      assert resp.decoded["id"] != nil
+      assert resp.decoded["customer_id"] == fixture.customer_id
+      assert resp.decoded["product_id"] != fixture.product_id
+      assert resp.decoded["due_date"] == fixture.due_date
+      assert resp.decoded["amount"] != :amount
+      assert resp.decoded["status"] != :pending
+    end
+  end
 end
