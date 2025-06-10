@@ -8,7 +8,9 @@ defmodule Payments.Domain.PaymentAggregateTest do
     create_cmd = %PaymentAggregate.Create{
       id: UUID.uuid4(),
       amount: 20,
-      due_date: Date.add(Date.utc_today(), 10)
+      due_date: Date.add(Date.utc_today(), 10),
+      customer_id: UUID.uuid4(),
+      product_id: UUID.uuid4()
     }
 
     {:ok, payment, _} = PaymentAggregate.evolve(nil, create_cmd)
@@ -21,6 +23,9 @@ defmodule Payments.Domain.PaymentAggregateTest do
       assert %ValueObjects.Amount{} = payment.amount
       assert %ValueObjects.DueDate{} = payment.due_date
       assert %ValueObjects.Status{} = payment.status
+
+      assert payment.customer_id != nil
+      assert payment.product_id != nil
     end
 
     test "cancel", %{payment: payment} do

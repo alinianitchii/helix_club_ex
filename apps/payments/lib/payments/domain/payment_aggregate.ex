@@ -1,10 +1,11 @@
 defmodule Payments.Domain.PaymentAggregate do
   alias Payments.Domain.ValueObjects
   alias Payments.Domain.PaymentAggregate
-  defstruct [:id, :amount, :due_date, :status]
+
+  defstruct [:id, :amount, :due_date, :status, :customer_id, :product_id]
 
   defmodule Create do
-    defstruct [:id, :amount, :due_date]
+    defstruct [:id, :amount, :due_date, :customer_id, :product_id]
   end
 
   defmodule Pay do
@@ -20,7 +21,7 @@ defmodule Payments.Domain.PaymentAggregate do
   end
 
   defmodule PendingPaymentCreated do
-    defstruct [:id, :amount, :due_date, :status]
+    defstruct [:id, :amount, :due_date, :status, :customer_id, :product_id]
   end
 
   defmodule PaymentCashed do
@@ -44,7 +45,9 @@ defmodule Payments.Domain.PaymentAggregate do
          id: command.id,
          amount: amount.value,
          due_date: due_date.date,
-         status: status.status
+         status: status.status,
+         customer_id: command.customer_id,
+         product_id: command.product_id
        }}
     end
   end
@@ -95,7 +98,9 @@ defmodule Payments.Domain.PaymentAggregate do
       id: event.id,
       amount: %ValueObjects.Amount{value: event.amount},
       due_date: %ValueObjects.DueDate{date: event.due_date},
-      status: %ValueObjects.Status{status: event.status}
+      status: %ValueObjects.Status{status: event.status},
+      customer_id: event.customer_id,
+      product_id: event.product_id
     }
   end
 
