@@ -63,6 +63,9 @@ defmodule Payments.Domain.PaymentAggregate do
 
   def decide(%PaymentAggregate{} = state, %EvaluateDueStatus{}) do
     cond do
+      not ValueObjects.Status.is_status?(state.status, :pending) ->
+        {:ok, nil}
+
       not ValueObjects.Status.is_valid_state_transition?(state.status, :overdue) ->
         {:error, DomainError.new(:invalid_state, "Invalid state transition")}
 

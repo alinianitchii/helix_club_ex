@@ -5,6 +5,10 @@ defmodule Payments.Domain.ValueObjects.Status do
 
   def new(), do: {:ok, %__MODULE__{status: :pending}}
 
+  def is_status?(%__MODULE__{status: current}, status) do
+    current == status
+  end
+
   # enable piping
   def change({:ok, %__MODULE__{} = vo}, new_status), do: change(vo, new_status)
   def change({:error, _} = error, _new_status), do: error
