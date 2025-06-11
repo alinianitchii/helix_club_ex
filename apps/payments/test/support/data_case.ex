@@ -5,6 +5,8 @@ defmodule Payments.DataCase do
     quote do
       alias Payments.Infrastructure.Db.Repo
 
+      use Oban.Testing, repo: Repo
+
       import Ecto
       import Ecto.Changeset
       import Ecto.Query

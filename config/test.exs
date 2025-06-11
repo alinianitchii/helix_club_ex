@@ -8,8 +8,7 @@ config :people, People.Infrastructure.Db.Repo,
   database: "people_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 20,
-  ownership_timeout: 10_000
+  pool_size: 20
 
 # Configure the sandbox
 config :people, :sql_sandbox, true
@@ -22,8 +21,7 @@ config :memberships, Memberships.Infrastructure.Db.Repo,
   database: "memberships_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 20,
-  ownership_timeout: 10_000
+  pool_size: 20
 
 # Configure the sandbox
 config :memberships, :sql_sandbox, true
@@ -36,8 +34,7 @@ config :payments, Payments.Infrastructure.Db.Repo,
   database: "payments_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 20,
-  ownership_timeout: 10_000
+  pool_size: 20
 
 # Configure the sandbox
 config :payments, :sql_sandbox, true
