@@ -1,6 +1,8 @@
 defmodule Payments.Infrastructure.Repositories.PaymentsWriteRepo do
   alias Payments.Infrastructure.Db.Schema.PaymentWriteModel
   alias Payments.Infrastructure.Db.Repo
+  alias Payments.Domain.PaymentAggregate
+  alias Payments.Domain.ValueObjects
 
   def save(payment, events) when is_list(events) do
     payment_json = serialize_aggregate(payment)
@@ -32,6 +34,18 @@ defmodule Payments.Infrastructure.Repositories.PaymentsWriteRepo do
     end
   end
 
+  def get(id) do
+    case Repo.get(PaymentWriteModel, id) do
+      nil ->
+        {:error, :not_found}
+
+      payment_schema ->
+        # Deserialize the state from JSON to the aggregate
+        payment = deserialize_aggregate(payment_schema.state)
+        {:ok, payment}
+    end
+  end
+
   defp serialize_aggregate(payment) do
     %{
       "id" => payment.id,
@@ -45,6 +59,19 @@ defmodule Payments.Infrastructure.Repositories.PaymentsWriteRepo do
     }
   end
 
-  # defp deserialize_date(nil), do: nil
-  # defp deserialize_date(date_string), do: Date.from_iso8601!(date_string)
+  defp deserialize_aggregate(payment_json) do
+    %PaymentAggregate{
+      id: payment_json["id"],
+      customer_id: payment_json["customer_id"],
+      product_id: payment_json["product_id"],
+      due_date: %ValueObjects.DueDate{
+        date: deserialize_date(payment_json["due_date"]["date"])
+      },
+      amount: %ValueObjects.Amount{value: payment_json["amount"]["value"]},
+      status: %ValueObjects.Status{status: payment_json["status"]["status"]}
+    }
+  end
+
+  defp deserialize_date(nil), do: nil
+  defp deserialize_date(date_string), do: Date.from_iso8601!(date_string)
 end
