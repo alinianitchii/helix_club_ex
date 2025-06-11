@@ -41,3 +41,5 @@ config :payments, Payments.Infrastructure.Db.Repo,
 
 # Configure the sandbox
 config :payments, :sql_sandbox, true
+
+config :payments, Oban, testing: :manual, log: :debug

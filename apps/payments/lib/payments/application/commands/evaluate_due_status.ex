@@ -1,4 +1,4 @@
-defmodule Payments.Application.Command.EvaluateDueStatus do
+defmodule Payments.Application.Commands.EvaluateDueStatus do
   alias Payments.Domain.PaymentAggregate
   alias Payments.Domain.PaymentAggregate.{EvaluateDueStatus}
   alias Payments.Infrastructure.Repositories.PaymentsWriteRepo

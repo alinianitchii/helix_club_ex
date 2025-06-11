@@ -8,7 +8,9 @@ defmodule Payments.Application do
     children = [
       Payments.Infrastructure.Db.Repo,
       {Bandit, plug: Payments.Http.Router, scheme: :http, port: 4002},
-      Payments.Infrastructure.PaymentsEventSubscriber
+      Payments.Infrastructure.PaymentsEventSubscriber,
+      Payments.Workers.Payments.PaymentsEventSubscriber,
+      {Oban, Application.fetch_env!(:payments, Oban)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

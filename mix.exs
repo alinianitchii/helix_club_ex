@@ -20,7 +20,8 @@ defmodule HelixClub.MixProject do
       {:jason, "~> 1.3"},
       {:uuid, "~> 1.1"},
       {:ecto_sql, "~> 3.0"},
-      {:postgrex, ">= 0.0.0"}
+      {:postgrex, ">= 0.0.0"},
+      {:oban, "~> 2.19"}
     ]
   end
 end
