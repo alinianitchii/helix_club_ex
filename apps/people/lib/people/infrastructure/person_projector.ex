@@ -30,12 +30,12 @@ defmodule People.EventSubscriber do
 end
 
 defmodule People.Projectors.PersonProjector do
-  alias People.Infrastructure.Repository.PersonReadRepo
+  alias People.Infrastructure.Repository.PeopleReadRepo
   alias People.Domain.Events.PersonCreated
   alias People.Domain.Events.PersonAddressChanged
 
   def handle(%PersonCreated{} = event) do
-    PersonReadRepo.upsert_person(%{
+    PeopleReadRepo.upsert_person(%{
       id: event.id,
       name: event.name,
       surname: event.surname,
@@ -45,7 +45,7 @@ defmodule People.Projectors.PersonProjector do
   end
 
   def handle(%PersonAddressChanged{} = event) do
-    case PersonReadRepo.get_person(event.id) do
+    case PeopleReadRepo.get_person(event.id) do
       nil ->
         {:error, :not_found}
 
@@ -59,7 +59,7 @@ defmodule People.Projectors.PersonProjector do
           country: event.country
         }
 
-        PersonReadRepo.upsert_person(%{id: event.id, address: address})
+        PeopleReadRepo.upsert_person(%{id: event.id, address: address})
     end
   end
 end

@@ -1,18 +1,19 @@
-defmodule People.Infrastructure.Repository.PersonWriteRepoTest do
-  use ExUnit.Case, async: false
+defmodule People.Infrastructure.Repository.PeopleWriteRepoTest do
   use People.DataCase
 
   alias People.Domain.PersonAggregate
   alias People.Domain.FullNameValueObject
   alias People.Domain.EmailValueObject
   alias People.Domain.BirthDateValueObject
-  alias People.Infrastructure.Repository.PersonWriteRepo
-  alias People.Infrastructure.Db.Schema.PersonWriteModel
+
   alias People.Infrastructure.Db.Repo
+  alias People.Infrastructure.Db.Schema.PersonWriteModel
+
+  alias People.Infrastructure.Repository.PeopleWriteRepo
 
   setup do
     person = %PersonAggregate{
-      id: "test_person_#{:rand.uniform(1_000_000)}",
+      id: UUID.uuid4(),
       full_name: %FullNameValueObject{name: "Ciccio", surname: "Pasticcio"},
       email: %EmailValueObject{value: "ciccio.pasticcio@example.com"},
       date_of_birth: %BirthDateValueObject{value: ~D[1990-01-01]}
@@ -25,7 +26,7 @@ defmodule People.Infrastructure.Repository.PersonWriteRepoTest do
 
   describe "save/1" do
     test "should save person to database as JSON", %{person: person} do
-      {:ok, saved_person} = PersonWriteRepo.save(person)
+      {:ok, saved_person} = PeopleWriteRepo.save(person)
 
       assert saved_person.id == person.id
 
@@ -60,18 +61,17 @@ defmodule People.Infrastructure.Repository.PersonWriteRepoTest do
         date_of_birth: ~D[2000-01-01]
       }
 
-      {:ok, _saved_person} = PersonWriteRepo.save_and_publish(person, [event])
+      {:ok, _saved_person} = PeopleWriteRepo.save_and_publish(person, [event])
 
-      # Assert that the event was published and received
       assert_receive ^event, 500
     end
   end
 
   describe "get/1" do
     test "should retrieve a person by ID", %{person: person} do
-      {:ok, _} = PersonWriteRepo.save(person)
+      {:ok, _} = PeopleWriteRepo.save(person)
 
-      {:ok, retrieved_person} = PersonWriteRepo.get(person.id)
+      {:ok, retrieved_person} = PeopleWriteRepo.get(person.id)
 
       assert retrieved_person.id == person.id
       assert retrieved_person.full_name.name == "Ciccio"
@@ -81,7 +81,7 @@ defmodule People.Infrastructure.Repository.PersonWriteRepoTest do
     end
 
     test "should return error when person doesn't exist" do
-      result = PersonWriteRepo.get("non_existent_id")
+      result = PeopleWriteRepo.get("non_existent_id")
 
       assert result == {:error, :not_found}
     end

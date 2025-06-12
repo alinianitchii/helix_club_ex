@@ -1,7 +1,7 @@
 defmodule People.Application.Command.AddAddress do
   alias People.Domain.Commands.AddAddress
   alias People.Domain.PersonAggregate
-  alias People.Infrastructure.Repository.PersonWriteRepo
+  alias People.Infrastructure.Repository.PeopleWriteRepo
 
   def execute(%{
         "id" => id,
@@ -21,13 +21,13 @@ defmodule People.Application.Command.AddAddress do
       country: country
     }
 
-    case PersonWriteRepo.get(id) do
+    case PeopleWriteRepo.get(id) do
       {:error, :not_found} ->
         {:error, :not_found}
 
       {:ok, person} ->
         with {:ok, person, event} <- PersonAggregate.evolve(person, command),
-             {:ok, _} <- PersonWriteRepo.save_and_publish(person, [event]) do
+             {:ok, _} <- PeopleWriteRepo.save_and_publish(person, [event]) do
           {:ok}
         end
     end

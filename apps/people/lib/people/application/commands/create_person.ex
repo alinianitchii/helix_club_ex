@@ -1,7 +1,7 @@
 defmodule People.Application.Command.CreatePerson do
   alias People.Domain.Commands.Create
   alias People.Domain.PersonAggregate
-  alias People.Infrastructure.Repository.PersonWriteRepo
+  alias People.Infrastructure.Repository.PeopleWriteRepo
 
   def execute(%{
         "id" => id,
@@ -21,7 +21,7 @@ defmodule People.Application.Command.CreatePerson do
     }
 
     with {:ok, person, event} <- PersonAggregate.evolve(nil, command),
-         {:ok, _} <- PersonWriteRepo.save_and_publish(person, [event]) do
+         {:ok, _} <- PeopleWriteRepo.save_and_publish(person, [event]) do
       {:ok, person.id}
     end
   end

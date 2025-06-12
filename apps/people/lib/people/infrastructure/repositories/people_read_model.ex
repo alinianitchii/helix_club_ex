@@ -1,4 +1,4 @@
-defmodule People.Infrastructure.Repository.PersonReadRepo do
+defmodule People.Infrastructure.Repository.PeopleReadRepo do
   alias People.Infrastructure.Db.Schema.PersonReadModel
   alias People.Infrastructure.Db.Repo
 

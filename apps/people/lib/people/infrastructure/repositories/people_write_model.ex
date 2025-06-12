@@ -1,34 +1,25 @@
-defmodule People.Infrastructure.Repository.PersonWriteRepo do
-  @moduledoc """
-  Repository for Person aggregate with JSON storage and outbox pattern support.
-  """
-
+defmodule People.Infrastructure.Repository.PeopleWriteRepo do
   alias People.Domain.PersonAggregate
   alias People.Domain.Events.PersonCreated
   alias People.Domain.Events.PersonAddressChanged
+
   alias People.Infrastructure.Db.Repo
   alias People.Infrastructure.Db.Schema.PersonWriteModel
   alias People.Infrastructure.Db.Schema.OutboxSchema
 
-  @doc """
-  Retrieves a person by ID, rebuilding the aggregate from JSON.
-  """
   def get(id) do
     case Repo.get(PersonWriteModel, id) do
       nil ->
         {:error, :not_found}
 
       person_schema ->
-        # Deserialize the state from JSON to the aggregate
         person = deserialize_aggregate(person_schema.state)
         {:ok, person}
     end
   end
 
-  @doc """
-  Saves the person aggregate and outbox events in a single transaction.
-  Uses JSON storage for the aggregate state.
-  """
+  def save(person), do: save(person, [])
+
   def save(person, events) when is_list(events) do
     Repo.transaction(fn ->
       person_json = serialize_aggregate(person)
@@ -46,6 +37,7 @@ defmodule People.Infrastructure.Repository.PersonWriteRepo do
 
       case Repo.insert_or_update(person_changeset) do
         {:ok, _saved_person} ->
+          # FIXME: currently not working, there is no publisher for outbox
           outbox_entries =
             Enum.map(events, fn event ->
               %{
@@ -82,8 +74,6 @@ defmodule People.Infrastructure.Repository.PersonWriteRepo do
         error
     end
   end
-
-  def save(person), do: save(person, [])
 
   defp serialize_aggregate(person) do
     %{
