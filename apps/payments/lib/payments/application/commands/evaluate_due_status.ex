@@ -13,7 +13,7 @@ defmodule Payments.Application.Commands.EvaluateDueStatus do
       {:ok, payment} ->
         with {:ok, payment, event} <- PaymentAggregate.evolve(payment, command),
              {:ok, _} <- PaymentsWriteRepo.save_and_publish(payment, [event]) do
-          {:ok}
+          :ok
         end
     end
   end

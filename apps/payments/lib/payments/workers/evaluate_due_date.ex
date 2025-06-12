@@ -4,8 +4,7 @@ defmodule Payments.Workers.Payments.EvaluateDueStatusJob do
   alias Payments.Application.Commands.EvaluateDueStatus
 
   @impl Oban.Worker
-  def perform(%Oban.Job{args: %{id: id}}) do
+  def perform(%Oban.Job{args: %{"id" => id}}) do
     EvaluateDueStatus.execute(%{"id" => id})
-    :ok
   end
 end

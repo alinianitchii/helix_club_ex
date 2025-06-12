@@ -1,7 +1,6 @@
 defmodule Payments.Http.PaymentsTest do
-  use ExUnit.Case, async: false
-
   use Payments.Http.ConnCase
+  use Payments.DataCase
 
   setup do
     {:ok,

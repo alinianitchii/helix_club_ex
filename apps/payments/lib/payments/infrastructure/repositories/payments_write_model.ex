@@ -23,6 +23,10 @@ defmodule Payments.Infrastructure.Repositories.PaymentsWriteRepo do
 
   def save(payment), do: save(payment, [])
 
+  # This is here because of the evolve function. When it does not returns any event it retuns nil.
+  # and it is a list because the command punts it there. Its not good.
+  def save_and_publish(payment, [nil]), do: save_and_publish(payment, [])
+
   def save_and_publish(payment, events) do
     case save(payment) do
       {:ok, _} ->
@@ -54,12 +58,14 @@ defmodule Payments.Infrastructure.Repositories.PaymentsWriteRepo do
       "due_date" => %{
         "date" => Date.to_iso8601(payment.due_date.date)
       },
-      "amount" => payment.amount.value,
-      "status" => payment.status.status
+      "amount" => %{"value" => payment.amount.value},
+      "status" => %{"status" => payment.status.status}
     }
   end
 
   defp deserialize_aggregate(payment_json) do
+    IO.inspect(payment_json)
+
     %PaymentAggregate{
       id: payment_json["id"],
       customer_id: payment_json["customer_id"],
