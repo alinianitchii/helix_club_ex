@@ -1,16 +1,13 @@
 defmodule Memberships.Http.MembershipsTest do
-  use ExUnit.Case, async: false
-
   use Memberships.DataCase
   use Memberships.Http.ConnCase
 
   setup do
     {:ok, mt} =
       Memberships.MembershipTypes.create_membership_type(%{
-        "name" => "Test Type",
+        "name" => "Annual Membership 2025",
         "type" => "yearly",
-        "description" => "Pre-seeded type",
-        "price_id" => "seeded_price"
+        "description" => ""
       })
 
     {:ok,
