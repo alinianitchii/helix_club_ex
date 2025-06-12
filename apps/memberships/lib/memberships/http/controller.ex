@@ -10,7 +10,7 @@ defmodule Memberships.Http.Controller do
     params_with_id = Map.merge(params, %{"id" => id})
 
     case SubmitApplication.execute(params_with_id) do
-      {:ok, _} ->
+      :ok ->
         send_resp(conn, 201, Jason.encode!(%{id: id}))
 
       {:error, reason} ->

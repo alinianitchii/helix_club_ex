@@ -5,29 +5,38 @@ defmodule Memberships.Application.Command.SubmitApplication do
   alias Memberships.MembershipTypes
 
   def execute(args) do
-    with {:ok, command} <- create_valid_command(args),
+    with {:ok, membership_type} = MembershipTypes.get_membership_type(args["membership_type_id"]),
+         {:ok, command} <- create_cmd(args, membership_type),
          {:ok, membership, event} <- MembershipAggregate.evolve(nil, command),
          {:ok, _} <- MembershipWriteRepo.save_and_publish(membership, [event]) do
-      {:ok, membership.id}
+      :ok
     end
   end
 
-  defp create_valid_command(%{
-         "id" => id,
-         "person_id" => person_id,
-         "membership_type_id" => membership_type_id,
-         "start_date" => start_date
-       }) do
-    with {:ok, parsed_start_date} <- Date.from_iso8601(start_date),
-         {:ok, membership_type} <- MembershipTypes.get_membership_type(membership_type_id) do
-      {:ok,
-       %Commands.SubmitFreeApplication{
-         id: id,
-         person_id: person_id,
-         membership_type_id: membership_type_id,
-         type: membership_type.type,
-         start_date: parsed_start_date
-       }}
+  def create_cmd(
+        %{
+          "id" => id,
+          "person_id" => person_id,
+          "start_date" => start_date
+        },
+        membership_type
+      ) do
+    with {:ok, parsed_date} <- Date.from_iso8601(start_date) do
+      common_args = %{
+        id: id,
+        person_id: person_id,
+        membership_type_id: membership_type.id,
+        type: membership_type.type,
+        start_date: parsed_date
+      }
+
+      case membership_type.price do
+        nil ->
+          {:ok, struct(Commands.SubmitFreeApplication, common_args)}
+
+        price when is_number(price) ->
+          {:ok, struct(Commands.SubmitPaidApplication, Map.put(common_args, :price, price))}
+      end
     end
   end
 end

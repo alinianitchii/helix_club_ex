@@ -1,2 +1,0 @@
-defmodule Memberships.Application.Command.SubmitApplicationTest do
-end
