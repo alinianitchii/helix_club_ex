@@ -8,6 +8,7 @@ defmodule Memberships.Application.Command.SubmitApplication do
     with {:ok, membership_type} = MembershipTypes.get_membership_type(args["membership_type_id"]),
          {:ok, command} <- create_cmd(args, membership_type),
          {:ok, membership, event} <- MembershipAggregate.evolve(nil, command),
+         # {:ok, integration_event} <- create_integration_event(event, membership_type),
          {:ok, _} <- MembershipWriteRepo.save_and_publish(membership, [event]) do
       :ok
     end
