@@ -9,4 +9,9 @@ config :payments, Oban,
   queues: [default: 10],
   repo: Payments.Infrastructure.Db.Repo
 
+config :memberships, Oban,
+  engine: Oban.Engines.Basic,
+  queues: [default: 10],
+  repo: Memberships.Infrastructure.Db.Repo
+
 import_config "#{config_env()}.exs"

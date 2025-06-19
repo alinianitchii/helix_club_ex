@@ -8,7 +8,8 @@ defmodule Memberships.Application do
     children = [
       Memberships.Infrastructure.Db.Repo,
       {Bandit, plug: Memberships.Http.Router, scheme: :http, port: 4001},
-      Memberships.Infrastructure.MembershipEventSubscriber
+      Memberships.Infrastructure.MembershipEventSubscriber,
+      {Oban, Application.fetch_env!(:memberships, Oban)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

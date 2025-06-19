@@ -42,6 +42,7 @@ defmodule Memberships.MixProject do
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
       {:bandit, "~> 1.0"},
+      {:oban, "~> 2.19"},
       {:pub_sub, in_umbrella: true},
       {:common, in_umbrella: true}
     ]
