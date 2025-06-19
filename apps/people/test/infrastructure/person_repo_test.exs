@@ -10,6 +10,8 @@ defmodule People.Infrastructure.Repository.PeopleWriteRepoTest do
   alias People.Infrastructure.Db.Schema.PersonWriteModel
 
   alias People.Infrastructure.Repository.PeopleWriteRepo
+  alias People.Infrastructure.Outbox
+  alias People.Infrastructure.Db.Schema.OutboxSchema
 
   setup do
     person = %PersonAggregate{
@@ -44,7 +46,7 @@ defmodule People.Infrastructure.Repository.PeopleWriteRepoTest do
   end
 
   describe "save_and_publish/2" do
-    test "publishes event" do
+    test "inserts message in outbox" do
       person = %PersonAggregate{
         id: UUID.uuid4(),
         full_name: %People.Domain.FullNameValueObject{name: "Alin", surname: "Ianitchii"},
@@ -63,7 +65,14 @@ defmodule People.Infrastructure.Repository.PeopleWriteRepoTest do
 
       {:ok, _saved_person} = PeopleWriteRepo.save_and_publish(person, [event])
 
-      assert_receive ^event, 500
+      outbox_message =
+        Outbox.one(
+          from m in OutboxSchema,
+            where: m.topic == "person.created" and m.payload["id"] == ^person.id
+        )
+
+      assert outbox_message.status == "pending"
+      assert outbox_message.payload["name"] == "Alin"
     end
   end
 

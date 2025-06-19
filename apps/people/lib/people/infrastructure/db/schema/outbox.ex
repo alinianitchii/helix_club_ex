@@ -3,21 +3,24 @@ defmodule People.Infrastructure.Db.Schema.OutboxSchema do
   import Ecto.Changeset
 
   @primary_key {:id, :binary_id, autogenerate: true}
-  schema "outbox" do
-    field(:aggregate_id, :string)
-    field(:aggregate_type, :string)
-    field(:event_type, :string)
-    # JSON type
-    field(:payload, :map)
-    # JSON type
-    field(:metadata, :map)
-    field(:processed_at, :utc_datetime)
-    field(:created_at, :utc_datetime)
+  @statuses ~w(pending sent failed)
+
+  schema "outbox_messages" do
+    field :type, :string
+    field :topic, :string
+    field :payload, :map
+
+    field :status, :string, default: "pending"
+    field :locked_at, :utc_datetime_usec
+    field :attempts, :integer, default: 0
+
+    timestamps()
   end
 
-  def changeset(outbox, attrs) do
-    outbox
-    |> cast(attrs, [:aggregate_id, :aggregate_type, :event_type, :payload, :metadata, :created_at])
-    |> validate_required([:aggregate_id, :aggregate_type, :event_type, :payload, :created_at])
+  def changeset(struct, attrs) do
+    struct
+    |> cast(attrs, [:type, :topic, :payload, :status, :locked_at, :attempts])
+    |> validate_required([:type, :topic, :payload])
+    |> validate_inclusion(:status, @statuses)
   end
 end

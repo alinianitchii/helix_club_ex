@@ -1,11 +1,10 @@
 defmodule People.Infrastructure.Repository.PeopleWriteRepo do
   alias People.Domain.PersonAggregate
-  alias People.Domain.Events.PersonCreated
-  alias People.Domain.Events.PersonAddressChanged
 
   alias People.Infrastructure.Db.Repo
   alias People.Infrastructure.Db.Schema.PersonWriteModel
-  alias People.Infrastructure.Db.Schema.OutboxSchema
+
+  alias People.Infrastructure.Outbox
 
   def get(id) do
     case Repo.get(PersonWriteModel, id) do
@@ -18,61 +17,47 @@ defmodule People.Infrastructure.Repository.PeopleWriteRepo do
     end
   end
 
-  def save(person), do: save(person, [])
+  def save(person) do
+    person_json = serialize_aggregate(person)
 
-  def save(person, events) when is_list(events) do
-    Repo.transaction(fn ->
-      person_json = serialize_aggregate(person)
+    person_changeset =
+      case Repo.get(PersonWriteModel, person.id) do
+        nil ->
+          %PersonWriteModel{id: person.id}
+          |> PersonWriteModel.changeset(%{state: person_json})
 
-      person_changeset =
-        case Repo.get(PersonWriteModel, person.id) do
-          nil ->
-            %PersonWriteModel{id: person.id}
-            |> PersonWriteModel.changeset(%{state: person_json})
-
-          existing ->
-            existing
-            |> PersonWriteModel.changeset(%{state: person_json})
-        end
-
-      case Repo.insert_or_update(person_changeset) do
-        {:ok, _saved_person} ->
-          # FIXME: currently not working, there is no publisher for outbox
-          outbox_entries =
-            Enum.map(events, fn event ->
-              %{
-                aggregate_id: person.id,
-                aggregate_type: "Person",
-                event_type: event_type_for(event),
-                payload: serialize_event(event),
-                metadata: %{},
-                created_at: DateTime.utc_now()
-              }
-            end)
-
-          {count, _} = Repo.insert_all(OutboxSchema, outbox_entries)
-
-          if count == length(events) do
-            person
-          else
-            Repo.rollback(:outbox_insert_failed)
-          end
-
-        {:error, changeset} ->
-          Repo.rollback(changeset)
+        existing ->
+          existing
+          |> PersonWriteModel.changeset(%{state: person_json})
       end
-    end)
+
+    Repo.insert_or_update(person_changeset)
   end
 
   def save_and_publish(person, events) do
-    case save(person) do
-      {:ok, _person} ->
-        Enum.each(events, &People.EventBus.publish/1)
-        {:ok, person}
+    Repo.transaction(fn ->
+      case save(person) do
+        {:ok, _} ->
+          outbox_entries =
+            Enum.map(events, fn event ->
+              %{
+                type: "event",
+                topic: "person.created",
+                payload: Map.from_struct(event)
+              }
+            end)
 
-      error ->
-        error
-    end
+          {count, _} = Outbox.enqueue_many(outbox_entries)
+
+          case count == length(events) do
+            false -> Repo.rollback(:outbox_insert_failed)
+            true -> {:ok, person}
+          end
+
+        {:error, _} ->
+          Repo.rollback(:save_and_publish_failed)
+      end
+    end)
   end
 
   defp serialize_aggregate(person) do
@@ -137,35 +122,4 @@ defmodule People.Infrastructure.Repository.PeopleWriteRepo do
       country: json["country"]
     }
   end
-
-  defp serialize_event(event) do
-    case event do
-      %PersonCreated{} = e ->
-        %{
-          "id" => e.id,
-          "name" => e.name,
-          "surname" => e.surname,
-          "email" => e.email,
-          "date_of_birth" => Date.to_iso8601(e.date_of_birth)
-        }
-
-      %PersonAddressChanged{} = e ->
-        %{
-          "id" => e.id,
-          "street" => e.street,
-          "number" => e.number,
-          "city" => e.city,
-          "postal_code" => e.postal_code,
-          "state_or_province" => e.state_or_province,
-          "country" => e.country
-        }
-    end
-  end
-
-  defp event_type_for(%PersonCreated{}), do: "person_created"
-
-  defp event_type_for(%PersonAddressChanged{}),
-    do: "person_address_changed"
-
-  # Add more event type mappings as needed
 end
