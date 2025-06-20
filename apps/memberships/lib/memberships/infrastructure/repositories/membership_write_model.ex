@@ -1,6 +1,25 @@
 defmodule Memberships.Infrastructure.Repositories.MembershipWriteRepo do
+  alias Memberships.Domain.MedicalCertificateStatusValueObject
+  alias Memberships.Domain.DurationValueObject
+  alias Memberships.Domain.PriceValueObject
+  alias Memberships.Domain.StatusValueObject
+
+  alias Memberships.Domain.PaymentStatusValueObject
+
+  alias Memberships.Domain.MembershipAggregate
   alias Memberships.Infrastructure.Db.Schema.MembershipWriteModel
   alias Memberships.Infrastructure.Db.Repo
+
+  def get(id) do
+    case Repo.get(MembershipWriteModel, id) do
+      nil ->
+        {:error, :not_found}
+
+      schema ->
+        aggregate = deserialize_aggregate(schema.state)
+        {:ok, aggregate}
+    end
+  end
 
   def save(membership, events) when is_list(events) do
     membership_json = serialize_aggregate(membership)
@@ -32,6 +51,7 @@ defmodule Memberships.Infrastructure.Repositories.MembershipWriteRepo do
     end
   end
 
+  # TODO handle nil values for price and payment
   defp serialize_aggregate(membership) do
     %{
       "id" => membership.id,
@@ -41,9 +61,31 @@ defmodule Memberships.Infrastructure.Repositories.MembershipWriteRepo do
         "start_date" => Date.to_iso8601(membership.duration.start_date),
         "end_date" => Date.to_iso8601(membership.duration.end_date)
       },
-      # TODO
-      "payment" => nil,
-      "med_cert" => nil
+      # "price" => %{
+      #  "value" => membership.price.value
+      # },
+      # "payment" => %{
+      #  "status" => membership.payment.status
+      # },
+      "med_cert" => %{
+        "status" => membership.med_cert.status
+      },
+      "status" => %{
+        "status" => membership.status.status
+      }
+    }
+  end
+
+  defp deserialize_aggregate(json) do
+    %MembershipAggregate{
+      id: json["id"],
+      person_id: json["person_id"],
+      duration: struct(DurationValueObject, json["duration"]),
+      membership_type_id: json["membership_type_id"],
+      price: struct(PriceValueObject, json["price"]),
+      payment: struct(PaymentStatusValueObject, json["payment"]),
+      med_cert: struct(MedicalCertificateStatusValueObject, json["med_cert"]),
+      status: struct(StatusValueObject, json["status"])
     }
   end
 
