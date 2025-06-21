@@ -8,12 +8,15 @@ defmodule Payments.Infrastructure.IntegrationCommandHandlers do
   def start_link(_), do: GenServer.start_link(__MODULE__, %{})
 
   def init(_) do
-    PubSub.CommandBus.subscribe("commands")
+    PubSub.CommandBus.subscribe("integration_commands")
     {:ok, %{}}
   end
 
-  def handle_info(%CreatePayment{} = cmd, state) do
+  # TODO: find out if this is a viable solution to handle only specific commands
+  def handle_info(%{type: :command, name: "payment.create", paylaod: payload}, state) do
     try do
+      cmd = CreatePayment.new(payload)
+
       Create.execute(cmd)
       {:noreply, state}
     rescue

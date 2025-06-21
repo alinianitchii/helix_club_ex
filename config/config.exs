@@ -10,6 +10,7 @@ config :payments, Oban,
   repo: Payments.Infrastructure.Db.Repo
 
 config :memberships, Oban,
+  name: Memberships.Oban,
   engine: Oban.Engines.Basic,
   queues: [default: 10],
   repo: Memberships.Infrastructure.Db.Repo

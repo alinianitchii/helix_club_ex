@@ -10,7 +10,7 @@ defmodule Memberships.Application do
       {Bandit, plug: Memberships.Http.Router, scheme: :http, port: 4001},
       Memberships.Infrastructure.MembershipEventSubscriber,
       Memberships.Workflows.MembershipEventsSubscriber,
-      {Oban, Application.fetch_env!(:memberships, Oban)}
+      {Oban, Keyword.put(Application.fetch_env!(:memberships, Oban), :name, Memberships.Oban)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
