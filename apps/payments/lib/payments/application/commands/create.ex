@@ -1,14 +1,3 @@
-defmodule Payments.IntegrationCommands.CreatePayment do
-  @derive Jason.Encoder
-  defstruct [
-    :id,
-    :due_date,
-    :amount,
-    :customer_id,
-    :product_id
-  ]
-end
-
 defmodule Payments.Application.Commands.Create do
   alias Payments.Domain.PaymentAggregate
   alias Payments.Domain.PaymentAggregate.{Create}

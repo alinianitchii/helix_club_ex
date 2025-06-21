@@ -2,7 +2,7 @@ defmodule Payments.Infrastructure.IntegrationCommandHandlers do
   use GenServer
   require Logger
 
-  alias Payments.IntegrationCommands.CreatePayment
+  alias Payments.Integration.Commands.CreatePayment
   alias Payments.Application.Commands.Create
 
   def start_link(_), do: GenServer.start_link(__MODULE__, %{})
