@@ -9,6 +9,7 @@ defmodule Memberships.Application do
       Memberships.Infrastructure.Db.Repo,
       {Bandit, plug: Memberships.Http.Router, scheme: :http, port: 4001},
       Memberships.Infrastructure.MembershipEventSubscriber,
+      Memberships.Workflows.MembershipEventsSubscriber,
       {Oban, Application.fetch_env!(:memberships, Oban)}
     ]
 
