@@ -1,11 +1,15 @@
-defmodule MedicalCertificates.Infrastructure.Repositories.MedicalCertificates do
+defmodule MedicalCertificates.Infrastructure.Repositories.MedicalCertificatesRepo do
   alias MedicalCertificates.Domain.ValueObjects
   alias People.Domain.FullNameValueObject
   alias MedicalCertificates.Domain.MedicalCertificateAggregate
   alias MedicalCertificates.Infrastructure.Db.Schema.MedicalCertificate
   alias People.Infrastructure.Db.Repo
 
-  def get(id) do
+  def get_by_id(id) do
+    Repo.get(MedicalCertificate, id)
+  end
+
+  def get_aggregate_by_id(id) do
     case Repo.get(MedicalCertificate, id) do
       nil ->
         {:error, :not_found}
@@ -27,7 +31,7 @@ defmodule MedicalCertificates.Infrastructure.Repositories.MedicalCertificates do
   def save_and_publish(state, events) do
     case save(state) do
       {:ok, _} ->
-        Enum.each(events, &People.EventBus.publish/1)
+        Enum.each(events, &MedicalCertificates.EventBus.publish/1)
         {:ok, state}
 
       error ->
