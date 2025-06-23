@@ -3,6 +3,8 @@ defmodule MedicalCertificates.Domain.ValueObjects.Validity do
 
   # @valid_statuses [:invalid, :valid]
 
+  def new(), do: {:ok, %__MODULE__{status: :unknown}}
+
   def new(%Date{} = issue_date) do
     case Date.before?(issue_date, Date.add(Date.utc_today(), -60)) do
       true -> {:ok, %__MODULE__{issue_date: issue_date, status: :invalid}}
