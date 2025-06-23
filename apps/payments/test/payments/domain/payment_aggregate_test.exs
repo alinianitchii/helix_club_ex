@@ -122,4 +122,39 @@ defmodule Payments.Domain.PaymentAggregateTest do
       assert event == nil
     end
   end
+
+  describe "cancel payment" do
+    test "a pending payment" do
+      create_cmd = %PaymentAggregate.Create{
+        id: UUID.uuid4(),
+        amount: 20,
+        due_date: Date.add(Date.utc_today(), -1)
+      }
+
+      {:ok, payment, _} = PaymentAggregate.evolve(nil, create_cmd)
+
+      cancel_cmd = %PaymentAggregate.Cancel{}
+      {:ok, payment, _} = PaymentAggregate.evolve(payment, cancel_cmd)
+
+      assert payment.status.status == :canceled
+    end
+
+    test "a paid payment" do
+      create_cmd = %PaymentAggregate.Create{
+        id: UUID.uuid4(),
+        amount: 20,
+        due_date: Date.add(Date.utc_today(), -1)
+      }
+
+      {:ok, payment, _} = PaymentAggregate.evolve(nil, create_cmd)
+
+      pay_cmd = %PaymentAggregate.Pay{}
+      {:ok, payment, _} = PaymentAggregate.evolve(payment, pay_cmd)
+
+      cancel_cmd = %PaymentAggregate.Cancel{}
+      {:ok, payment, _} = PaymentAggregate.evolve(payment, cancel_cmd)
+
+      assert payment.status.status == :refunded
+    end
+  end
 end

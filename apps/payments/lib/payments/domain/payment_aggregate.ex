@@ -82,7 +82,7 @@ defmodule Payments.Domain.PaymentAggregate do
   end
 
   def decide(%PaymentAggregate{} = state, %Cancel{} = command) do
-    with {:ok, status} = ValueObjects.Status.change(state.status, :canceled) do
+    with {:ok, status} = ValueObjects.Status.handle_cancelation_status_change(state.status) do
       {:ok,
        %PaymentCanceled{
          id: state.id,

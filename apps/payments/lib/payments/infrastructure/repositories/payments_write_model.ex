@@ -64,8 +64,6 @@ defmodule Payments.Infrastructure.Repositories.PaymentsWriteRepo do
   end
 
   defp deserialize_aggregate(payment_json) do
-    IO.inspect(payment_json)
-
     %PaymentAggregate{
       id: payment_json["id"],
       customer_id: payment_json["customer_id"],
