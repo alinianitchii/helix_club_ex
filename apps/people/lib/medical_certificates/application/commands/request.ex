@@ -17,7 +17,7 @@ defmodule MedicalCertificates.Application.Commands.CreateRequest do
 
     with {:ok, state, event} <- MedicalCertificateAggregate.evolve(nil, command),
          {:ok, _} <- MedicalCertificatesRepo.save_and_publish(state, [event]) do
-      {:ok}
+      {:ok, id}
     end
   end
 end

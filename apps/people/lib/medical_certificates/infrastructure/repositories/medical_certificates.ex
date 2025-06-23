@@ -21,9 +21,12 @@ defmodule MedicalCertificates.Infrastructure.Repositories.MedicalCertificatesRep
   end
 
   def save(aggregate) do
-    schema = aggregate_to_schema(aggregate)
+    schema = aggregate_to_atrs(aggregate)
 
-    Repo.get(MedicalCertificate, aggregate.id)
+    case Repo.get(MedicalCertificate, aggregate.id) do
+      nil -> %MedicalCertificate{}
+      existing -> existing |> MedicalCertificate.changeset(schema)
+    end
     |> MedicalCertificate.changeset(schema)
     |> Repo.insert_or_update()
   end
@@ -39,16 +42,16 @@ defmodule MedicalCertificates.Infrastructure.Repositories.MedicalCertificatesRep
     end
   end
 
-  defp aggregate_to_schema(aggregate) do
+  defp aggregate_to_atrs(aggregate) do
     # Maybe I should not use the schema here
-    %MedicalCertificate{
+    %{
       id: aggregate.id,
       holder_id: aggregate.holder_id,
       holder_name: aggregate.holder_full_name.name,
       holder_surname: aggregate.holder_full_name.surname,
       request_date: aggregate.request_date.date,
       issue_date: aggregate.validity.issue_date,
-      status: aggregate.vality.status
+      status: aggregate.validity.status
     }
   end
 

@@ -23,6 +23,14 @@ defmodule People.Http.Router do
     People.Http.PersonController.get(conn, id)
   end
 
+  post "/medical-certificates" do
+    MedicalCertificates.Http.Controller.create_request(conn, conn.body_params)
+  end
+
+  get "/medical-certificates/:id" do
+    MedicalCertificates.Http.Controller.get(conn, id)
+  end
+
   match _ do
     send_resp(conn, 404, "Not found")
   end

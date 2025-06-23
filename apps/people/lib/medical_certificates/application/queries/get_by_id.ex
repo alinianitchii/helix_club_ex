@@ -1,4 +1,4 @@
-defmodule MedicalCertificates.Application.Query.GetById do
+defmodule MedicalCertificates.Application.Queries.GetById do
   alias MedicalCertificates.Infrastructure.Repositories.MedicalCertificatesRepo
 
   def execute(id) do
