@@ -5,8 +5,15 @@ defmodule MedicalCertificates.Infrastructure.Repositories.MedicalCertificatesRep
   alias MedicalCertificates.Infrastructure.Db.Schema.MedicalCertificate
   alias People.Infrastructure.Db.Repo
 
+  import Ecto.Query
+
   def get_by_id(id) do
     Repo.get(MedicalCertificate, id)
+  end
+
+  def get_by_holder_id(holder_id) do
+    from(mc in MedicalCertificate, where: mc.holder_id == ^holder_id)
+    |> Repo.all()
   end
 
   def get_aggregate_by_id(id) do
