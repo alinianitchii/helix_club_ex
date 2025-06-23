@@ -49,7 +49,7 @@ defmodule Memberships.Workflows.MembershipActication do
       }
     }
 
-    PubSub.CommandBus.publish(create_payment_cmd)
+    PubSub.Integration.CommandBus.publish(create_payment_cmd)
 
     # TODO publish request medical certification command
 

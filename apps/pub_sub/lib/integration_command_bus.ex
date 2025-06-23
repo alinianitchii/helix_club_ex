@@ -1,6 +1,6 @@
-defmodule PubSub.CommandBus do
+defmodule PubSub.Integration.CommandBus do
   def publish(command) do
-    PubSub.publish({"integration_commands", command})
+    PubSub.publish({"integration.commands", command})
   end
 
   def subscribe(topic) do

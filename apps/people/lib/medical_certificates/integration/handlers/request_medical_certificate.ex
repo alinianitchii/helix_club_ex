@@ -9,7 +9,7 @@ defmodule MedicalCertificates.Integration.CommandHandlers.RequestMedicalCertific
   def start_link(_), do: GenServer.start_link(__MODULE__, %{})
 
   def init(_) do
-    PubSub.CommandBus.subscribe("integration_commands")
+    PubSub.Integration.CommandBus.subscribe("integration_commands")
     {:ok, %{}}
   end
 
