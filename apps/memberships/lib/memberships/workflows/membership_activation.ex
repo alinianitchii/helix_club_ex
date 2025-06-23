@@ -20,7 +20,7 @@ defmodule Memberships.Workflows.MembershipActication do
       TryActivateMembership.schedule(membership_id, start_date)
     end)
 
-    # TODO publish request medical certification command
+    request_medical_certificate(person_id)
 
     {:ok, process_state}
   end
@@ -38,6 +38,24 @@ defmodule Memberships.Workflows.MembershipActication do
       TryActivateMembership.schedule(membership_id, start_date)
     end)
 
+    request_medical_certificate(person_id)
+
+    create_payment(membership_id, person_id, price, start_date)
+
+    {:ok, process_state}
+  end
+
+  defp request_medical_certificate(person_id) do
+    request_med_cert_cmd = %{
+      type: :command,
+      name: "medical-certificate.request",
+      paylaod: %{holder_id: person_id}
+    }
+
+    PubSub.Integration.CommandBus.publish(request_med_cert_cmd)
+  end
+
+  defp create_payment(membership_id, person_id, price, start_date) do
     create_payment_cmd = %{
       type: :command,
       name: "payment.create",
@@ -50,9 +68,5 @@ defmodule Memberships.Workflows.MembershipActication do
     }
 
     PubSub.Integration.CommandBus.publish(create_payment_cmd)
-
-    # TODO publish request medical certification command
-
-    {:ok, process_state}
   end
 end
