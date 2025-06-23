@@ -1,6 +1,6 @@
 defmodule PubSub.Integration.EventBus do
-  def publish(command) do
-    PubSub.publish({"integration.events", command})
+  def publish(event) do
+    PubSub.publish({"integration.events", event})
   end
 
   def subscribe(topic) do
