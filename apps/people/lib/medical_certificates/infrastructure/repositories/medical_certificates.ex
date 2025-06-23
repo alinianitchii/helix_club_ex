@@ -1,0 +1,63 @@
+defmodule MedicalCertificates.Infrastructure.Repositories.MedicalCertificates do
+  alias MedicalCertificates.Domain.ValueObjects
+  alias People.Domain.FullNameValueObject
+  alias MedicalCertificates.Domain.MedicalCertificateAggregate
+  alias MedicalCertificates.Infrastructure.Db.Schema.MedicalCertificate
+  alias People.Infrastructure.Db.Repo
+
+  def get(id) do
+    case Repo.get(MedicalCertificate, id) do
+      nil ->
+        {:error, :not_found}
+
+      schema ->
+        aggregate = schema_to_aggregate(schema)
+        {:ok, aggregate}
+    end
+  end
+
+  def save(aggregate) do
+    schema = aggregate_to_schema(aggregate)
+
+    Repo.get(MedicalCertificate, aggregate.id)
+    |> MedicalCertificate.changeset(schema)
+    |> Repo.insert_or_update()
+  end
+
+  def save_and_publish(state, events) do
+    case save(state) do
+      {:ok, _} ->
+        Enum.each(events, &People.EventBus.publish/1)
+        {:ok, state}
+
+      error ->
+        error
+    end
+  end
+
+  defp aggregate_to_schema(aggregate) do
+    # Maybe I should not use the schema here
+    %MedicalCertificate{
+      id: aggregate.id,
+      holder_id: aggregate.holder_id,
+      holder_name: aggregate.holder_full_name.name,
+      holder_surname: aggregate.holder_full_name.surname,
+      request_date: aggregate.request_date.date,
+      issue_date: aggregate.validity.issue_date,
+      status: aggregate.vality.status
+    }
+  end
+
+  defp schema_to_aggregate(schema) do
+    %MedicalCertificateAggregate{
+      id: schema.id,
+      holder_id: schema.holder_id,
+      holder_full_name: %FullNameValueObject{
+        name: schema.holder_name,
+        surname: schema.holder_surname
+      },
+      request_date: %ValueObjects.ReqeustDate{date: schema.request_date},
+      validity: %ValueObjects.Validity{issue_date: schema.issue_date, status: schema.status}
+    }
+  end
+end
