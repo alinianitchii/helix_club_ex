@@ -8,7 +8,7 @@ defmodule Memberships.Integration.CommandHandlers.MedicalCertificateStatusChange
   def start_link(_), do: GenServer.start_link(__MODULE__, %{})
 
   def init(_) do
-    PubSub.Integration.EventBus.subscribe("integration_events")
+    PubSub.Integration.EventBus.subscribe("integration.events")
     {:ok, %{}}
   end
 
@@ -17,14 +17,14 @@ defmodule Memberships.Integration.CommandHandlers.MedicalCertificateStatusChange
         state
       ) do
     try do
-      # TODO: maybe I should use a dedicated query for this
       memberships = MembershipReadRepo.get_by_person_id(payload.holder_id)
 
       Enum.each(memberships, fn membership ->
-        Commands.ChangeMedicalCertificateStatus.execute(%{
-          id: membership.id,
-          med_cert_new_status: payload.status
-        })
+        :ok =
+          Commands.ChangeMedicalCertificateStatus.execute(%{
+            "id" => membership.id,
+            "med_cert_new_status" => payload.status
+          })
       end)
 
       {:noreply, state}

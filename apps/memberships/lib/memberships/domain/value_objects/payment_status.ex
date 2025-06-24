@@ -15,4 +15,6 @@ defmodule Memberships.Domain.PaymentStatusValueObject do
   def is_paid?(%__MODULE__{status: status}) do
     status == :paid
   end
+
+  def all_statuses(), do: @valid_statuses
 end

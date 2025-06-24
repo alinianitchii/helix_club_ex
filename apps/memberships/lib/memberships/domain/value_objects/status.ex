@@ -45,4 +45,6 @@ defmodule Memberships.Domain.StatusValueObject do
   end
 
   defp state_transition(_, new_status), do: {:ok, %__MODULE__{status: new_status}}
+
+  def all_statuses(), do: @valid_statuses
 end

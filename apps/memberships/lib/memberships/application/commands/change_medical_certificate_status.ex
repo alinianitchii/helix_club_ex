@@ -12,5 +12,7 @@ defmodule Memberships.Application.Commands.ChangeMedicalCertificateStatus do
     end
   end
 
-  defp create_cmd(status), do: {:ok, %Commands.ChangeMedicalCertificateStatus{status: status}}
+  defp create_cmd(status) do
+    {:ok, %Commands.ChangeMedicalCertificateStatus{status: String.to_atom(status)}}
+  end
 end

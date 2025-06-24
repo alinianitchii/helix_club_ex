@@ -10,6 +10,9 @@ defmodule Memberships.Infrastructure.Db.Repo.Migrations.MembershipsReadModel do
      	add :start_date, :date
       add :end_date, :date
       add :price, :float
+      add :med_cert_status, :string
+      add :payment_status, :string
+      add :status, :string
 
      	timestamps()
   	end

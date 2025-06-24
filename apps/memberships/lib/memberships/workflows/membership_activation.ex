@@ -1,4 +1,6 @@
 defmodule Memberships.Workflows.MembershipActication do
+  require Logger
+
   alias Memberships.Domain.Events.{
     FreeMembershipApplicationSubmitted,
     PaidMembershipApplicationSubmitted
@@ -43,6 +45,12 @@ defmodule Memberships.Workflows.MembershipActication do
     create_payment(membership_id, person_id, price, start_date)
 
     {:ok, process_state}
+  end
+
+  def handle(event) do
+    Logger.debug("Unhandled event: #{inspect(event)}. Memberships.Workflows.MembershipActication")
+
+    {:ok}
   end
 
   defp request_medical_certificate(person_id) do

@@ -32,7 +32,9 @@ defmodule Memberships.Infrastructure.Projectors.MembershipProjector do
 
   alias Memberships.Domain.Events.{
     FreeMembershipApplicationSubmitted,
-    PaidMembershipApplicationSubmitted
+    PaidMembershipApplicationSubmitted,
+    MembershipMedicalCertificationStatusChanged,
+    MembershipPaymentStatusChanged
   }
 
   def handle(%FreeMembershipApplicationSubmitted{} = event) do
@@ -55,6 +57,20 @@ defmodule Memberships.Infrastructure.Projectors.MembershipProjector do
       start_date: event.start_date,
       end_date: event.end_date,
       price: event.price
+    })
+  end
+
+  def handle(%MembershipMedicalCertificationStatusChanged{} = event) do
+    MembershipReadRepo.upsert(%{
+      id: event.id,
+      med_cert_status: event.status
+    })
+  end
+
+  def handle(%MembershipPaymentStatusChanged{} = event) do
+    MembershipReadRepo.upsert(%{
+      id: event.id,
+      payment_status: event.status
     })
   end
 end

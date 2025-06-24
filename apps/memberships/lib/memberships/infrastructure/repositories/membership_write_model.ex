@@ -51,7 +51,6 @@ defmodule Memberships.Infrastructure.Repositories.MembershipWriteRepo do
     end
   end
 
-  # TODO handle nil values for price and payment
   defp serialize_aggregate(membership) do
     %{
       "id" => membership.id,
@@ -61,12 +60,17 @@ defmodule Memberships.Infrastructure.Repositories.MembershipWriteRepo do
         "start_date" => Date.to_iso8601(membership.duration.start_date),
         "end_date" => Date.to_iso8601(membership.duration.end_date)
       },
-      # "price" => %{
-      #  "value" => membership.price.value
-      # },
-      # "payment" => %{
-      #  "status" => membership.payment.status
-      # },
+      "membership_type_id" => membership.membership_type_id,
+      "price" =>
+        case membership.price do
+          nil -> nil
+          price -> %{"value" => price.value}
+        end,
+      "payment" =>
+        case membership.payment do
+          nil -> nil
+          payment -> %{"status" => payment.status}
+        end,
       "med_cert" => %{
         "status" => membership.med_cert.status
       },
@@ -80,15 +84,34 @@ defmodule Memberships.Infrastructure.Repositories.MembershipWriteRepo do
     %MembershipAggregate{
       id: json["id"],
       person_id: json["person_id"],
-      duration: struct(DurationValueObject, json["duration"]),
+      duration: %DurationValueObject{
+        type: String.to_atom(json["duration"]["type"]),
+        start_date: deserialize_date(json["duration"]["start_date"]),
+        end_date: deserialize_date(json["duration"]["end_date"])
+      },
       membership_type_id: json["membership_type_id"],
-      price: struct(PriceValueObject, json["price"]),
-      payment: struct(PaymentStatusValueObject, json["payment"]),
-      med_cert: struct(MedicalCertificateStatusValueObject, json["med_cert"]),
-      status: struct(StatusValueObject, json["status"])
+      price:
+        case json["price"] do
+          nil -> nil
+          price -> %PriceValueObject{value: String.to_atom(price["value"])}
+        end,
+      payment:
+        case json["payment"] do
+          nil -> nil
+          payment -> %PaymentStatusValueObject{status: String.to_atom(payment["status"])}
+        end,
+      med_cert:
+        case json["med_cert"] do
+          nil ->
+            nil
+
+          med_cert ->
+            %MedicalCertificateStatusValueObject{status: String.to_atom(med_cert["status"])}
+        end,
+      status: %StatusValueObject{status: String.to_atom(json["status"]["status"])}
     }
   end
 
-  # defp deserialize_date(nil), do: nil
-  # defp deserialize_date(date_string), do: Date.from_iso8601!(date_string)
+  defp deserialize_date(nil), do: nil
+  defp deserialize_date(date_string), do: Date.from_iso8601!(date_string)
 end

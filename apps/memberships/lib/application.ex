@@ -10,6 +10,7 @@ defmodule Memberships.Application do
       {Bandit, plug: Memberships.Http.Router, scheme: :http, port: 4001},
       Memberships.Infrastructure.MembershipEventSubscriber,
       Memberships.Workflows.MembershipEventsSubscriber,
+      Memberships.Integration.CommandHandlers.MedicalCertificateStatusChanged,
       {Oban, Keyword.put(Application.fetch_env!(:memberships, Oban), :name, Memberships.Oban)}
     ]
 

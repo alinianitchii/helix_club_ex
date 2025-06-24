@@ -16,4 +16,6 @@ defmodule Memberships.Domain.MedicalCertificateStatusValueObject do
   def is_valid?(%__MODULE__{status: current}) do
     current == :valid
   end
+
+  def all_statuses(), do: @valid_statuses
 end
