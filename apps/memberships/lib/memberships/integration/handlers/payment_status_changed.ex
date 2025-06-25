@@ -7,16 +7,17 @@ defmodule Memberships.Integration.CommandHandlers.PaymentStatusChanged do
   def start_link(_), do: GenServer.start_link(__MODULE__, %{})
 
   def init(_) do
-    PubSub.Integration.EventBus.subscribe("integration_events")
+    PubSub.Integration.EventBus.subscribe("integration.events")
     {:ok, %{}}
   end
 
   def handle_info(%{type: :event, name: "payment.status-changed", paylaod: payload}, state) do
     try do
-      Commands.ChangePaymentStatus.execute(%{
-        id: payload.product_id,
-        payment_new_status: payload.status
-      })
+      :ok =
+        Commands.ChangePaymentStatus.execute(%{
+          "id" => payload.product_id,
+          "payment_new_status" => payload.status
+        })
 
       {:noreply, state}
     rescue
@@ -24,5 +25,13 @@ defmodule Memberships.Integration.CommandHandlers.PaymentStatusChanged do
         Logger.error("Error processing event: #{inspect(e)}")
         {:noreply, state}
     end
+  end
+
+  def handle_info(event, state) do
+    Logger.debug(
+      "Unhandled event: #{inspect(event)}. Memberships.Integration.CommandHandlers.PaymentStatusChanged"
+    )
+
+    {:noreply, state}
   end
 end

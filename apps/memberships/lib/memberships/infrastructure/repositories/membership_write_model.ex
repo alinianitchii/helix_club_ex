@@ -93,7 +93,7 @@ defmodule Memberships.Infrastructure.Repositories.MembershipWriteRepo do
       price:
         case json["price"] do
           nil -> nil
-          price -> %PriceValueObject{value: String.to_atom(price["value"])}
+          price -> %PriceValueObject{value: price["value"]}
         end,
       payment:
         case json["payment"] do

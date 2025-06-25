@@ -12,5 +12,7 @@ defmodule Memberships.Application.Commands.ChangePaymentStatus do
     end
   end
 
-  defp create_cmd(status), do: {:ok, %Commands.ChangePaymentStatus{status: status}}
+  defp create_cmd(status) do
+    {:ok, %Commands.ChangePaymentStatus{status: String.to_atom(status)}}
+  end
 end

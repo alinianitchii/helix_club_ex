@@ -34,4 +34,12 @@ defmodule Memberships.Integration.CommandHandlers.MedicalCertificateStatusChange
         {:noreply, state}
     end
   end
+
+  def handle_info(event, state) do
+    Logger.debug(
+      "Unhandled event: #{inspect(event)}. Memberships.Integration.CommandHandlers.MedicalCertificateStatusChanged"
+    )
+
+    {:noreply, state}
+  end
 end

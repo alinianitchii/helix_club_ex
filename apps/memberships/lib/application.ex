@@ -11,6 +11,7 @@ defmodule Memberships.Application do
       Memberships.Infrastructure.MembershipEventSubscriber,
       Memberships.Workflows.MembershipEventsSubscriber,
       Memberships.Integration.CommandHandlers.MedicalCertificateStatusChanged,
+      Memberships.Integration.CommandHandlers.PaymentStatusChanged,
       {Oban, Keyword.put(Application.fetch_env!(:memberships, Oban), :name, Memberships.Oban)}
     ]
 
