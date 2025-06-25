@@ -72,7 +72,7 @@ defmodule Payments.Infrastructure.Repositories.PaymentsWriteRepo do
         date: deserialize_date(payment_json["due_date"]["date"])
       },
       amount: %ValueObjects.Amount{value: payment_json["amount"]["value"]},
-      status: %ValueObjects.Status{status: payment_json["status"]["status"]}
+      status: %ValueObjects.Status{status: String.to_atom(payment_json["status"]["status"])}
     }
   end
 
