@@ -44,7 +44,7 @@ defmodule Memberships.MixProject do
       {:bandit, "~> 1.0"},
       {:oban, "~> 2.19"},
       {:pub_sub, in_umbrella: true},
-      {:common, in_umbrella: true}
+      {:shared_kernel, in_umbrella: true}
     ]
   end
 end

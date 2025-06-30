@@ -1,5 +1,3 @@
-# Find out what is the standard in elixir for sharing this concept across the project
-
 defmodule DomainError do
   defstruct [:code, :message, :http_error_code]
 

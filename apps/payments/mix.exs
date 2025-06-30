@@ -43,8 +43,8 @@ defmodule Payments.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:bandit, "~> 1.0"},
       {:oban, "~> 2.19"},
-      {:common, in_umbrella: true},
-      {:pub_sub, in_umbrella: true}
+      {:pub_sub, in_umbrella: true},
+      {:shared_kernel, in_umbrella: true}
     ]
   end
 end

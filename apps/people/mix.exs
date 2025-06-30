@@ -44,7 +44,7 @@ defmodule People.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:bandit, "~> 1.0"},
       {:pub_sub, in_umbrella: true},
-      {:common, in_umbrella: true}
+      {:shared_kernel, in_umbrella: true}
     ]
   end
 end
