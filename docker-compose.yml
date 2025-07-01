@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    container_name: db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    command: "-c max_connections=200"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 4s
+      retries: 5
+
+  helix-club:
+    build: .
+    depends_on:
+      - db
+    container_name: helix-club
+    environment:
+      MIX_ENV: dev
+      DATABASE_URL: ecto://postgres:postgres@db:5432
+    ports:
+      - "4000:4000"
+      - "4001:4001"
+      - "4002:4002"

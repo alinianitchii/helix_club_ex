@@ -11,6 +11,10 @@ defmodule Memberships.Http.Router do
   plug(:match)
   plug(:dispatch)
 
+  get "" do
+    send_resp(conn, 200, Jason.encode!(%{message: "Memberships is up and running!"}))
+  end
+
   post "/memberships" do
     Memberships.Http.Controller.create(conn, conn.body_params)
   end

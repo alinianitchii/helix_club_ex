@@ -11,6 +11,10 @@ defmodule People.Http.Router do
   plug(:match)
   plug(:dispatch)
 
+  get "" do
+    send_resp(conn, 200, Jason.encode!(%{message: "People is up and running!"}))
+  end
+
   post "/people" do
     People.Http.PersonController.create(conn, conn.body_params)
   end

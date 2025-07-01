@@ -11,6 +11,10 @@ defmodule Payments.Http.Router do
   plug(:match)
   plug(:dispatch)
 
+  get "" do
+    send_resp(conn, 200, Jason.encode!(%{message: "Payments is up and running!"}))
+  end
+
   post "/payments" do
     Payments.Http.Controller.create(conn, conn.body_params)
   end
