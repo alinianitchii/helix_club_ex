@@ -21,7 +21,7 @@ services:
     container_name: helix-club
     environment:
       MIX_ENV: dev
-      DATABASE_URL: ecto://postgres:postgres@db:5432
+      DATABASE_URL: ecto://postgres:postgres@db:5432/helix-club
     ports:
       - "4000:4000"
       - "4001:4001"
