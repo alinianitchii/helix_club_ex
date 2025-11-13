@@ -5,7 +5,7 @@ defmodule HelixClub.MixProject do
     [
       apps_path: "apps",
       version: "0.1.0",
-      elixir: "~> 1.18.4",
+      elixir: "~> 1.19.2",
       start_permanent: Mix.env() == :dev,
       deps: deps(),
       licenses: ["MIT"],

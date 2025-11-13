@@ -1,5 +1,5 @@
 # === Stage 1: Build ===
-FROM elixir:1.18.4-alpine AS build
+FROM elixir:1.19.2-alpine AS build
 
 WORKDIR /app
 
@@ -24,7 +24,7 @@ WORKDIR /app
 RUN MIX_ENV=dev mix release
 
 # === Stage 2: Runtime ===
-FROM alpine:3.19 AS app
+FROM elixir:1.19.2-alpine AS app
 
 RUN apk add --no-cache libstdc++ openssl ncurses-libs
 
