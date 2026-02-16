@@ -28,6 +28,7 @@ Ensure a local **PostgreSQL** instance is running. The following databases must 
 To set up the environment:
 
 ```bash
+MIX_ENV=test
 mix deps.get
 mix ecto.create
 mix ecto.migrate
