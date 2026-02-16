@@ -94,8 +94,8 @@ defmodule People.Domain.PersonAggregate do
 
   def evolve(state, command) do
     with {:ok, event} <- decide(state, command) do
-      new_state = apply_event(state, event)
-      {:ok, new_state, event}
+      evolved_state = apply_event(state, event)
+      {:ok, evolved_state, event}
     end
   end
 end

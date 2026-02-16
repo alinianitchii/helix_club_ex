@@ -73,13 +73,9 @@ defmodule MedicalCertificates.Domain.MedicalCertificateAggregate do
   end
 
   def evolve(state, command) do
-    case decide(state, command) do
-      {:ok, nil} ->
-        {:ok, state, nil}
-
-      {:ok, event} ->
-        new_state = apply_event(state, event)
-        {:ok, new_state, event}
+    with {:ok, event} <- decide(state, command) do
+      evolved_state = apply_event(state, event)
+      {:ok, evolved_state, event}
     end
   end
 end
